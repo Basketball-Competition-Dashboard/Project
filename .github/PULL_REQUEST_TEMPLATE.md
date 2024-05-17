@@ -12,6 +12,6 @@
 
 | Item          | Is checked? | Description                                        |
 | ------------- | ----------- | -------------------------------------------------- |
-| Explanatory   | X           | My changes are well-explained.                     |
+| Explanation   | X           | My changes are well-explained.                     |
 | Documentation | X           | My works are well-commented or clear.              |
 | Tests         | X           | I have added tests or reports to cover my changes. |
