@@ -5,8 +5,9 @@
 1. Clone the repository and sub-modules
 
     ```shell
-    git clone --recursive https://github.com/Basketball-Competition-Dashboard/Project.git
+    git clone https://github.com/Basketball-Competition-Dashboard/Project.git
     cd Project
+    git submodule update --init --recursive --remote
     ```
 
 2. Install the dependencies for the server
