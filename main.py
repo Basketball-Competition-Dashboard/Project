@@ -8,10 +8,6 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key="coffee.db"
 moment = Moment(app)
-# app.register_blueprint(branch_app)
-# app.register_blueprint(member_app)
-# app.register_blueprint(menu_app)
-# app.register_blueprint(ingredient_app)
 
 
 @app.route('/')
