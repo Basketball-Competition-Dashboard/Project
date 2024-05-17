@@ -1,5 +1,3 @@
-from flask import Flask, render_template, request
-from enum import Enum
 import sqlite3
 
 def add_user(acc:str, name:str, Tel:str, passwd:str):
