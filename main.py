@@ -1,21 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, Blueprint
-from flask_moment import Moment
-from datetime import datetime
+from flask import Flask, render_template
 
 
+app = Flask(
+    __name__,
+    static_url_path="/",
+    static_folder="web/dist",
+    template_folder="web/dist",
+)
+app.secret_key = "coffee.db"
 
 
-app = Flask(__name__)
-app.secret_key="coffee.db"
-moment = Moment(app)
-
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html',
-                           page_header="index",
-                           current_time=datetime.utcnow())
+    return render_template("index.html")
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0",port = 3000)
+    app.run(debug=True, host="0.0.0.0", port=3000)
