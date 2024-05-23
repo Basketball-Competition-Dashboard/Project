@@ -31,12 +31,12 @@
 
 4. Build the client
 
-    - [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+    - [`bun`](https://bun.sh)
 
         ```shell
         cd web/
-        npm install
-        npm run build
+        bun install
+        bun run build
         cd ../
         ```
 
