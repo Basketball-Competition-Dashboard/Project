@@ -37,7 +37,7 @@ def get_index_page():
     return render_template('index.html')
 
 @bp_web_page.errorhandler(404)
-def error_not_found(*_):
+def get_dynamic_page(*_):
     return render_template('index.html')
 
 
