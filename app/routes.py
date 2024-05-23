@@ -33,7 +33,11 @@ def get_data():
 
 
 @webpage.route('/')
-def get_index_html():
+def get_index_page():
+    return render_template('index.html')
+
+@webpage.errorhandler(404)
+def error_not_found(*_):
     return render_template('index.html')
 
 
