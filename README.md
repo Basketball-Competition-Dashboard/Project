@@ -18,6 +18,15 @@
     pip install -Ur requirements.txt
     ```
 
+3. Install nbaDB.db
+
+    https://kaggle.com/datasets/8e63bac156b2f779188ae0eff48ea602f347ab59e98b413e261e95fc6161375c
+
+    ```
+    mkdir data
+    ```
+    把剛才下載好的nbaDB放進data中
+
 3. Build the client
 
     - [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
