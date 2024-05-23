@@ -1,7 +1,15 @@
 import sqlite3
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 
 bp = Blueprint('main', __name__)
+webpage = Blueprint(
+    'webpage',
+    __name__,
+    url_prefix='/',
+    static_url_path='/',
+    static_folder='../web/dist',
+    template_folder='../web/dist',
+)
 
 @bp.route('/api/hello', methods=['GET'])
 def hello_world():
@@ -23,5 +31,12 @@ def get_data():
         })
     return jsonify(data)
 
+
+@webpage.route('/')
+def get_index_html():
+    return render_template('index.html')
+
+
 def init_app(app):
+    app.register_blueprint(webpage)
     app.register_blueprint(bp)
