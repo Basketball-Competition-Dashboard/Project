@@ -5,6 +5,6 @@ def create_app():
 
     with app.app_context():
         from . import routes
-        routes.init_app(app)  # 确保注册蓝图
+        routes.init_app(app)
 
     return app

@@ -20,7 +20,6 @@ def get_data():
         data.append({
             'column1': row[0],
             'column2': row[1],
-            # 根据实际的表结构添加更多的列
         })
     return jsonify(data)
 
