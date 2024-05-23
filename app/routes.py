@@ -2,8 +2,8 @@ import sqlite3
 from flask import Blueprint, jsonify, render_template
 
 bp = Blueprint('main', __name__)
-webpage = Blueprint(
-    'webpage',
+bp_web_page = Blueprint(
+    'Web page',
     __name__,
     url_prefix='/',
     static_url_path='/',
@@ -32,15 +32,15 @@ def get_data():
     return jsonify(data)
 
 
-@webpage.route('/')
+@bp_web_page.route('/')
 def get_index_page():
     return render_template('index.html')
 
-@webpage.errorhandler(404)
+@bp_web_page.errorhandler(404)
 def error_not_found(*_):
     return render_template('index.html')
 
 
 def init_app(app):
-    app.register_blueprint(webpage)
+    app.register_blueprint(bp_web_page)
     app.register_blueprint(bp)
