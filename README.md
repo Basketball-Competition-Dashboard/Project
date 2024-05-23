@@ -25,7 +25,7 @@
     - 把下載好的 `nbaDB.db` 放進 data 中
 
         ```shell
-        mkdir data
+        mkdir -p data/
         cp nbaDB.db data/
         ```
 
