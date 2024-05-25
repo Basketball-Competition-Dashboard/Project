@@ -1,6 +1,8 @@
 import sqlite3
 from flask import Blueprint, jsonify, render_template
 
+# __name__ == app.routes
+# __name__取得當前模組的名稱，用於定位相對路徑
 bp = Blueprint('main', __name__)
 bp_web_page = Blueprint(
     'Web page',
@@ -34,6 +36,7 @@ def get_data():
 
 @bp_web_page.route('/')
 def get_index_page():
+    # 渲染位於 ../web/dist/index.html 的模板
     return render_template('index.html')
 
 @bp_web_page.errorhandler(404)
@@ -42,5 +45,8 @@ def get_dynamic_page(*_):
 
 
 def init_app(app):
+    # 負責靜態資源和模板渲染
     app.register_blueprint(bp_web_page)
+
+    # 負責 API
     app.register_blueprint(bp)
