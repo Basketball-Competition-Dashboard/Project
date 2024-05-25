@@ -22,7 +22,7 @@
 
     - Download link: https://kaggle.com/datasets/8e63bac156b2f779188ae0eff48ea602f347ab59e98b413e261e95fc6161375c
 
-    - 把下載好的 `nbaDB.db` 放進 data 中
+    - Put downloaded file `nbaDB.db` to `data/`
 
         ```shell
         mkdir -p data/
