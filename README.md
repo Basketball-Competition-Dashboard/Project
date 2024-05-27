@@ -45,4 +45,8 @@
     ```shell
     python -m main
     ```
-## 使用swagger-ui進行API
+
+## Development
+
+1. The site URL for development is [http://127.0.0.1:5000](http://127.0.0.1:5000)
+2. The Web API documentation URL is [http://127.0.0.1:5000/_doc/api/web](http://127.0.0.1:5000/_doc/api/web)
