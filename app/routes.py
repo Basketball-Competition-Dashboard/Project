@@ -19,7 +19,7 @@ bp_web_page = Blueprint(
 )
 
 @bp_web_api.route('/ping', methods=['GET'])
-def heartbeat():
+def ping():
     return jsonify('Pong!')
 
 @bp_web_api.route('/data', methods=['GET'])
