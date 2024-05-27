@@ -1,9 +1,14 @@
+from flask import Blueprint, Flask, jsonify, render_template
 import sqlite3
-from flask import Blueprint, jsonify, render_template, send_from_directory
+from swagger_ui import api_doc
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
-bp = Blueprint('main', __name__)
+bp_web_api = Blueprint(
+    'Web API',
+    __name__,
+    url_prefix='/api/web',
+)
 bp_web_page = Blueprint(
     'Web page',
     __name__,
@@ -13,27 +18,29 @@ bp_web_page = Blueprint(
     template_folder='../web/dist',
 )
 
-@bp.route('/api/hello', methods=['GET'])
-def hello_world():
-    return jsonify(message="Hello, World!")
+@bp_web_api.route('/ping', methods=['GET'])
+def heartbeat():
+    return jsonify('Pong!')
 
-@bp.route('/api/data', methods=['GET'])
+@bp_web_api.route('/data', methods=['GET'])
 def get_data():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect('data/nbaDB.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM your_table_name')
+    cursor.execute('SELECT * FROM Team;')
     rows = cursor.fetchall()
     conn.close()
-    
+
     data = []
     for row in rows:
-        data.append({
-            'column1': row[0],
-            'column2': row[1],
-        })
+        data.append(
+            {
+                'column1': row[0],
+                'column2': row[1],
+            }
+        )
     return jsonify(data)
 
-# 渲染位於 ../web/dist/index.html 的模板
+# Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
 def get_index_page():
     return render_template('index.html')
@@ -42,22 +49,18 @@ def get_index_page():
 def get_dynamic_page(*_):
     return render_template('index.html')
 
-def init_app(app):
-    
-    # 負責靜態資源和模板渲染
+def init_app(app: Flask):
+    # 負責靜態資源
     app.register_blueprint(bp_web_page)
-    # 負責 API
-    app.register_blueprint(bp)
+    # 負責處理 API 請求
+    app.register_blueprint(bp_web_api)
+    # Generate Web API documentation
+    api_doc(
+        app,
+        config_path='doc/api/web/openapi.yml',
+        url_prefix='/_doc/api/web',
+        title='Web API Documentation',
+        editor=True,
+    )
 
-    @app.route('/swagger-ui/')
-    def swagger_ui():
-        return send_from_directory('../swagger-ui', 'index.html')
-
-    @app.route('/swagger-ui/<path:path>')
-    def swagger_static(path):
-        return send_from_directory('../swagger-ui', path)
-
-    # http://127.0.0.1:5000/openapi.yml
-    @app.route('/openapi.yml')
-    def openapi_spec():
-        return send_from_directory('..', 'openapi.yml')
+    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/_doc/api/web')

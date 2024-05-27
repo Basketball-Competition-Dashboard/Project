@@ -1,5 +1,8 @@
 from app import create_app
+from logging import basicConfig, DEBUG
+from sys import stderr
 
-app = create_app()
 if __name__ == '__main__':
-    app.run(debug=True)
+    basicConfig(format='%(message)s', level=DEBUG, stream=stderr)
+    app = create_app()
+    app.run(host='127.0.0.1', port=5000, debug=True)
