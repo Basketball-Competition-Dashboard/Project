@@ -57,7 +57,7 @@ def init_app(app: Flask):
     # Generate Web API documentation
     api_doc(
         app,
-        config_path='doc/api/web/openapi.yml',
+        config_url='https://raw.githubusercontent.com/Basketball-Competition-Dashboard/doc/main/api/web/openapi.yml',
         url_prefix='/_doc/api/web',
         title='Web API Documentation',
         editor=True,
