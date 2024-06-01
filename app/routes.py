@@ -1,4 +1,5 @@
-from flask import Blueprint, Flask, jsonify, render_template
+from flask import Blueprint, Flask, jsonify, render_template, request, redirect, url_for
+from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user  
 import sqlite3
 from swagger_ui import api_doc
 
@@ -18,9 +19,50 @@ bp_web_page = Blueprint(
     template_folder='../web/dist',
 )
 
+login_manager = LoginManager()
+login_manager.init_app(bp_web_api)
+
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
     return jsonify('Pong!')
+
+class User(UserMixin):
+    pass
+
+@bp_web_api.route('/login', methods=['GET', 'POST'])  
+def login():   
+    if request.method == 'GET':  
+           return '''
+     <form action='login' method='POST'>
+     <input type='text' name='name' id='name' placeholder='name'/>
+     <input type='text' name='credential' id='credential' placeholder='credential'/>
+     <input type='submit' name='submit'/>
+     </form>
+                  '''
+
+    conn = sqlite3.connect('data/nbaDB.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Manager;')
+    rows = cursor.fetchall()
+    conn.close()
+
+    name = request.form['name']  
+    
+    for username, password in rows:
+        if request.form['credential'] == password and name == username :  
+            user = User()  
+            user.id = name  
+            #  這邊，透過login_user來記錄user_id，如下了解程式碼的login_user說明。  
+            login_user(user)  
+            return 'Login'
+
+    return 'Fail to login'
+
+@bp_web_api.route('/logout')  
+def logout():  
+    logout_user()  
+    return 'Logged out'  
+  
 
 @bp_web_api.route('/data', methods=['GET'])
 def get_data():
@@ -63,4 +105,4 @@ def init_app(app: Flask):
         editor=True,
     )
 
-    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/_doc/api/web')
+    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/api/web/login')
