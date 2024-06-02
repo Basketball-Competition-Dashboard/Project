@@ -25,7 +25,6 @@
     - Put the downloaded file `nbaDB.db` to `data/`
 
         ```shell
-        mkdir -p data/
         cp nbaDB.db data/
         ```
 
