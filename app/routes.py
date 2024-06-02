@@ -68,7 +68,7 @@ def get_player_profiles():
                       "offset": 8888
                     },
                     "values": []
-                  }), 400
+                  }), 200
   
   response_data, status_code = dataProcess.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
@@ -77,6 +77,9 @@ def get_player_profiles():
 def update_or_create_player_profile():
     cookies = request.cookies
     session_id = cookies.get('session_id')
+    
+
+
     print("Cookies received:", cookies)
     print("Session ID:", session_id)
     if not request.is_json:

@@ -48,4 +48,4 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
 
       return response_data, 200
     except Exception as e:
-        return {"message": "Your request is invalid."}, 400
+        return {"message": "Your request is invalid.!"}, 400
