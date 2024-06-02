@@ -1,5 +1,5 @@
 from http.cookiejar import Cookie
-from flask import Blueprint, Flask, jsonify, render_template, request, json
+from flask import Blueprint, Flask, jsonify, render_template, request, Response
 import sqlite3
 from swagger_ui import api_doc
 from app import dataProcess
@@ -41,6 +41,10 @@ def get_data():
             }
         )
     return jsonify(data)
+
+@bp_web_api.route('/auth/login', methods=['POST'])
+def auth_login():
+    return Response(status=201, headers={'Set-Cookie': 'session_id=EXAMPLE; HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'})
 
 # Player Profiles API
 @bp_web_api.route('/player-profiles', methods=['POST'])
