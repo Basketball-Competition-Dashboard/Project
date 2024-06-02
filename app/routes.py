@@ -2,7 +2,7 @@ from http.cookiejar import Cookie
 from flask import Blueprint, Flask, jsonify, render_template, request, json
 import sqlite3
 from swagger_ui import api_doc
-from data import dataProcess
+from app import dataProcess
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
