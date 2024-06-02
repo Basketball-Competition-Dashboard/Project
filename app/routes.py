@@ -1,4 +1,5 @@
-from flask import Blueprint, Flask, jsonify, render_template, request
+from http.cookiejar import Cookie
+from flask import Blueprint, Flask, jsonify, render_template, request, json
 import sqlite3
 from swagger_ui import api_doc
 from data import dataProcess
@@ -67,6 +68,19 @@ def get_player_profiles():
   
   response_data, status_code = dataProcess.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
+
+@bp_web_api.route('/player-profiles', methods=['PUT'])
+def update_or_create_player_profile():
+    cookies = request.cookies
+    session_id = cookies.get('session_id')
+    print("Cookies received:", cookies)
+    print("Session ID:", session_id)
+    if not request.is_json:
+      return jsonify({"message": "Your request is invalid."}), 400
+    
+    req_data = request.get_json()
+    print(req_data[0])
+    return "ok"
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
