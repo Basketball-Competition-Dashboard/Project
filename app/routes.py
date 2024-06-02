@@ -51,12 +51,19 @@ def get_player_profiles():
   page = req_data.get('page', {})
   sort = req_data.get('sort', {})
 
-  length = page.get('length')
-  offset = page.get('offset')
-  sort_field = sort.get('field')
-  sort_order = sort.get('order')
-  if sort_field not in ['name', 'date']:
-      return jsonify({"message": "Your request is invalid."}), 400
+  length = page.get('length', 0)
+  offset = page.get('offset', 8888)
+  sort_field = sort.get('field', 'name')
+  sort_order = sort.get('order', 'ascending')
+  print(length, offset, sort_field, sort_order)
+  if length == 0 & offset == 8888:
+    return jsonify({
+                    "page": {
+                      "length": 0,
+                      "offset": 8888
+                    },
+                    "values": []
+                  }), 400
   
   response_data, status_code = dataProcess.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
