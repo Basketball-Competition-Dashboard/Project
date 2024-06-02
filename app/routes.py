@@ -1,4 +1,5 @@
 from flask import Blueprint, Flask, jsonify, render_template
+from flask_cors import CORS
 import sqlite3
 from swagger_ui import api_doc
 
@@ -52,8 +53,11 @@ def get_dynamic_page(*_):
 def init_app(app: Flask):
     # 負責靜態資源
     app.register_blueprint(bp_web_page)
+
     # 負責處理 API 請求
+    CORS(bp_web_api, origins=['http://localhost:5173'])
     app.register_blueprint(bp_web_api)
+
     # Generate Web API documentation
     api_doc(
         app,
