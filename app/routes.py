@@ -1,6 +1,7 @@
-from flask import Blueprint, Flask, jsonify, render_template
+from flask import Blueprint, Flask, jsonify, render_template, request
 import sqlite3
 from swagger_ui import api_doc
+from data import dataProcess
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
@@ -39,6 +40,26 @@ def get_data():
             }
         )
     return jsonify(data)
+
+# Player Profiles API
+@bp_web_api.route('/player-profiles', methods=['POST'])
+def get_player_profiles():
+  if not request.is_json:
+      return jsonify({"message": "Your request is invalid."}), 400
+
+  req_data = request.get_json()
+  page = req_data.get('page', {})
+  sort = req_data.get('sort', {})
+
+  length = page.get('length')
+  offset = page.get('offset')
+  sort_field = sort.get('field')
+  sort_order = sort.get('order')
+  if sort_field not in ['name', 'date']:
+      return jsonify({"message": "Your request is invalid."}), 400
+  
+  response_data, status_code = dataProcess.fetch_player_profiles(length, offset, sort_field, sort_order)
+  return jsonify(response_data), status_code
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
