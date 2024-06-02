@@ -34,7 +34,7 @@
 
         ```shell
         cd web/
-        bun install
+        bun install --no-save
         bun run build
         cd ../
         ```
