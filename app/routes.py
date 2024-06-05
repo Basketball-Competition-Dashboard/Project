@@ -1,6 +1,6 @@
-from flask import Blueprint, Flask, jsonify, render_template, request, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user  
+from flask import Blueprint, Flask, jsonify, render_template, request, make_response
 import sqlite3
+import uuid
 from swagger_ui import api_doc
 
 # __name__ == app.routes
@@ -19,15 +19,11 @@ bp_web_page = Blueprint(
     template_folder='../web/dist',
 )
 
-login_manager = LoginManager()
-login_manager.init_app(bp_web_api)
+session = {}
 
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
     return jsonify('Pong!')
-
-class User(UserMixin):
-    pass
 
 @bp_web_api.route('/login', methods=['GET', 'POST'])  
 def login():   
@@ -35,7 +31,7 @@ def login():
            return '''
      <form action='login' method='POST'>
      <input type='text' name='name' id='name' placeholder='name'/>
-     <input type='text' name='credential' id='credential' placeholder='credential'/>
+     <input type='password' name='credential' id='credential' placeholder='credential'/>
      <input type='submit' name='submit'/>
      </form>
                   '''
@@ -47,22 +43,30 @@ def login():
     conn.close()
 
     name = request.form['name']  
-    
     for username, password in rows:
         if request.form['credential'] == password and name == username :  
-            user = User()  
-            user.id = name  
-            #  這邊，透過login_user來記錄user_id，如下了解程式碼的login_user說明。  
-            login_user(user)  
-            return 'Login'
-
-    return 'Fail to login'
+            session_id = str(uuid.uuid4())
+            session['session_id'] = session_id
+            response = make_response(jsonify(
+                {"message": 'Logged in',
+                 'session_id': session_id ,
+                 'info': 'HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'}), 201)
+            response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
+        return response
+    
+    return jsonify({"message": "The resource you are accessing is not found."}), 404
 
 @bp_web_api.route('/logout')  
-def logout():  
-    logout_user()  
-    return 'Logged out'  
-  
+def logout():
+    session_id = request.cookies.get('session_id')  
+    if session_id :
+        response = make_response(jsonify(
+                {"message": 'Logged out',
+                 'session_id': ' ',
+                 'info': 'HttpOnly; Max-Age=0; Path=/; SameSite=Strict'}), 204)
+        response.set_cookie('session_id', ' ', httponly=True, max_age=0, path='/', samesite='Strict')
+        return response  
+    return jsonify({"message": "You are not authorized to access this resource."}), 404
 
 @bp_web_api.route('/data', methods=['GET'])
 def get_data():
