@@ -1,6 +1,8 @@
-from flask import Blueprint, Flask, jsonify, render_template
+from http.cookiejar import Cookie
+from flask import Blueprint, Flask, jsonify, render_template, request, Response
 import sqlite3
 from swagger_ui import api_doc
+from app import dataProcess_player_profiles
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
@@ -39,6 +41,64 @@ def get_data():
             }
         )
     return jsonify(data)
+
+@bp_web_api.route('/auth/login', methods=['POST'])
+def auth_login():
+    "TODO: Stub for the function"
+    return Response(status=201, headers={'Set-Cookie': 'session_id=EXAMPLE; HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'})
+
+# Player Profiles API
+@bp_web_api.route('/player-profiles', methods=['POST'])
+def get_player_profiles():
+  if not request.is_json:
+      return jsonify({"message": "Your request is invalid."}), 400
+
+  req_data = request.get_json()
+  page = req_data.get('page', {})
+  sort = req_data.get('sort', {})
+
+  length = page.get('length', 0)
+  offset = page.get('offset', 8888)
+  sort_field = sort.get('field', 'name')
+  sort_order = sort.get('order', 'ascending')
+  print(length, offset, sort_field, sort_order)
+  # TODO: Stub for the response
+  if length == 0 & offset == 8888:
+    return jsonify({
+                    "page": {
+                      "length": 0,
+                      "offset": 8888
+                    },
+                    "values": []
+                  }), 200
+  
+  response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
+  return jsonify(response_data), status_code
+
+@bp_web_api.route('/player-profiles', methods=['PUT'])
+def update_or_create_player_profile():
+    "TODO: Stub for the function"
+    response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+    return jsonify(response_data), status_code
+    cookies = request.cookies
+    session_id = cookies.get('session_id')
+    
+    print("Cookies received:", cookies)
+    print("Session ID:", session_id)
+    if not request.is_json:
+      return jsonify({"message": "Your request is invalid."}), 400
+    
+    req_data = request.get_json()
+    print(req_data[0])
+    return "ok"
+
+@bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
+def delete_player_profile(id):
+    "TODO: Stub for the function"
+    # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+    # return jsonify(response_data), status_code
+    response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
+    return jsonify(response_data), status_code
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
