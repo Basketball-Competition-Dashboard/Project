@@ -19,7 +19,7 @@ bp_web_page = Blueprint(
     template_folder='../web/dist',
 )
 
-session = {}
+cookie = {}
 
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
@@ -45,8 +45,8 @@ def login():
     name = request.form['name']  
     for username, password in rows:
         if request.form['credential'] == password and name == username :  
-            session_id = str(uuid.uuid4())
-            session['session_id'] = session_id
+            session_id = str(uuid.uuid4().hex)
+            cookie['session_id'] = session_id
             response = make_response(jsonify(
                 {"message": 'Logged in',
                  'session_id': session_id ,
