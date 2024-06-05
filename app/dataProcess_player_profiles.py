@@ -48,7 +48,7 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
       }
 
       return response_data, 200
-    except Exception as e:
+    except Exception:
         return {"message": "Your request is invalid.!"}, 400
 
 def player_profiles_put_stub():

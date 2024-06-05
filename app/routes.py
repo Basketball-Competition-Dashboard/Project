@@ -44,6 +44,7 @@ def get_data():
 
 @bp_web_api.route('/auth/login', methods=['POST'])
 def auth_login():
+    "TODO: Stub for the function"
     return Response(status=201, headers={'Set-Cookie': 'session_id=EXAMPLE; HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'})
 
 # Player Profiles API
@@ -61,6 +62,7 @@ def get_player_profiles():
   sort_field = sort.get('field', 'name')
   sort_order = sort.get('order', 'ascending')
   print(length, offset, sort_field, sort_order)
+  # TODO: Stub for the response
   if length == 0 & offset == 8888:
     return jsonify({
                     "page": {
@@ -75,6 +77,7 @@ def get_player_profiles():
 
 @bp_web_api.route('/player-profiles', methods=['PUT'])
 def update_or_create_player_profile():
+    "TODO: Stub for the function"
     response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
     return jsonify(response_data), status_code
     cookies = request.cookies
@@ -91,11 +94,11 @@ def update_or_create_player_profile():
 
 @bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
 def delete_player_profile(id):
+    "TODO: Stub for the function"
     # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
     # return jsonify(response_data), status_code
     response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
     return jsonify(response_data), status_code
-  # TODO: Implement this API endpoint
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
