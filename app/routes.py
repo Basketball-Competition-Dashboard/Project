@@ -63,15 +63,9 @@ def get_player_profiles():
   sort_order = sort.get('order', 'ascending')
   print(length, offset, sort_field, sort_order)
   # TODO: Stub for the response
-  if length == 0 & offset == 8888:
-    return jsonify({
-                    "page": {
-                      "length": 0,
-                      "offset": 8888
-                    },
-                    "values": []
-                  }), 200
-  
+  if length == 0 and offset == 8888:
+    return jsonify([]), 200
+
   response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
 

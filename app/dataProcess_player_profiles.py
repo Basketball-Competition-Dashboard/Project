@@ -39,13 +39,7 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
           "team_name": row[6],
           "weight": row[7]
       } for row in rows]
-      response_data = {
-          "page": {
-              "length": length,
-              "offset": offset
-          },
-          "values": values
-      }
+      response_data = values
 
       return response_data, 200
     except Exception:
