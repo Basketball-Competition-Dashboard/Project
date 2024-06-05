@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, jsonify, render_template, request, make_response
+from flask import Blueprint, Flask, jsonify, render_template, request, make_response, Response
 import sqlite3
 import uuid
 from swagger_ui import api_doc
@@ -25,7 +25,7 @@ cookie = {}
 def ping():
     return jsonify('Pong!')
 
-@bp_web_api.route('/login', methods=['GET', 'POST'])  
+@bp_web_api.route('/auth/login', methods=['GET', 'POST'])  
 def login():   
     if request.method == 'GET':  
            return '''
@@ -47,25 +47,20 @@ def login():
         if request.form['credential'] == password and name == username :  
             session_id = str(uuid.uuid4().hex)
             cookie['session_id'] = session_id
-            response = make_response(jsonify(
-                {"message": 'Logged in',
-                 'session_id': session_id ,
-                 'info': 'HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'}), 201)
+            response = Response(status=201)
             response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
         return response
     
     return jsonify({"message": "The resource you are accessing is not found."}), 404
 
-@bp_web_api.route('/logout')  
+@bp_web_api.route('/auth/logout')  
 def logout():
     session_id = request.cookies.get('session_id')  
     if session_id :
-        response = make_response(jsonify(
-                {"message": 'Logged out',
-                 'session_id': ' ',
-                 'info': 'HttpOnly; Max-Age=0; Path=/; SameSite=Strict'}), 204)
-        response.set_cookie('session_id', ' ', httponly=True, max_age=0, path='/', samesite='Strict')
+        response = Response(status=204)
+        response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
         return response  
+    
     return jsonify({"message": "You are not authorized to access this resource."}), 404
 
 @bp_web_api.route('/data', methods=['GET'])
@@ -109,4 +104,4 @@ def init_app(app: Flask):
         editor=True,
     )
 
-    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/api/web/login')
+    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/api/web/auth/login')
