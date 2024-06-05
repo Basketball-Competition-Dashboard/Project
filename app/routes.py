@@ -42,9 +42,11 @@ def login():
     rows = cursor.fetchall()
     conn.close()
 
-    name = request.form['name']  
+    data = request.get_json()
+
+    name = data.get('name')
     for username, password in rows:
-        if request.form['credential'] == password and name == username :  
+        if data.get('credential') == password and name == username :  
             session_id = str(uuid.uuid4().hex)
             cookie['session_id'] = session_id
             response = Response(status=201)
@@ -53,11 +55,12 @@ def login():
     
     return jsonify({"message": "The resource you are accessing is not found."}), 404
 
-@bp_web_api.route('/auth/logout')  
+@bp_web_api.route('/auth/logout', methods=['GET'])  
 def logout():
     session_id = request.cookies.get('session_id')  
     if session_id :
         response = Response(status=204)
+        cookie['session_id'] = ''
         response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
         return response  
     
@@ -104,4 +107,4 @@ def init_app(app: Flask):
         editor=True,
     )
 
-    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/api/web/auth/login')
+    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/_doc/api/web')
