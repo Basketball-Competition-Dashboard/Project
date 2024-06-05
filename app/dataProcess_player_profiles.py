@@ -1,4 +1,5 @@
 import sqlite3
+import random
 def fetch_player_profiles(length, offset, sort_field, sort_order):
     try:
       conn = sqlite3.connect('data/nbaDB.db')
@@ -49,3 +50,26 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
       return response_data, 200
     except Exception as e:
         return {"message": "Your request is invalid.!"}, 400
+
+def player_profiles_put_stub():
+  state1 = random.choice([1, 2, 3, 4])
+  if state1 == 1:
+    return "Created",200
+  elif state1 == 2:
+    return "Updated", 204
+  elif state1 == 3:
+    return {"message": "Your request is invalid."}, 400
+  else:
+    return {"message": "You are not authorized to access this resource."}, 401
+  
+
+
+def player_profiles_delete_stub(id):
+  if id == 1:
+    return "Deleted", 204
+  elif id == 2:
+    return {"message": "Your request is invalid."}, 400
+  elif id == 3:
+    return {"message": "You are not authorized to access this resource."}, 401
+  else:
+    return {"message": "You are not authorized to access this resource."}, 404

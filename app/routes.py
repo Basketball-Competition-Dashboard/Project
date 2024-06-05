@@ -2,7 +2,7 @@ from http.cookiejar import Cookie
 from flask import Blueprint, Flask, jsonify, render_template, request, Response
 import sqlite3
 from swagger_ui import api_doc
-from app import dataProcess
+from app import dataProcess_player_profiles
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
@@ -70,16 +70,16 @@ def get_player_profiles():
                     "values": []
                   }), 200
   
-  response_data, status_code = dataProcess.fetch_player_profiles(length, offset, sort_field, sort_order)
+  response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
 
 @bp_web_api.route('/player-profiles', methods=['PUT'])
 def update_or_create_player_profile():
+    response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+    return jsonify(response_data), status_code
     cookies = request.cookies
     session_id = cookies.get('session_id')
     
-
-
     print("Cookies received:", cookies)
     print("Session ID:", session_id)
     if not request.is_json:
@@ -88,6 +88,14 @@ def update_or_create_player_profile():
     req_data = request.get_json()
     print(req_data[0])
     return "ok"
+
+@bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
+def delete_player_profile(id):
+    # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+    # return jsonify(response_data), status_code
+    response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
+    return jsonify(response_data), status_code
+  # TODO: Implement this API endpoint
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
