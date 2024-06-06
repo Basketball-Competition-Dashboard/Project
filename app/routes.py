@@ -28,48 +28,44 @@ def ping():
     return jsonify('Pong!')
 
 @bp_web_api.route('/auth/login', methods=['POST'])  
-def login():   
-    data = request.get_json()
+def login():
+    try:
+        data = request.get_json()
+        name = data['name']
+        credential = data['credential']
+    except KeyError:
+        return jsonify({"message": "Your request is invalid."}), 400
 
-    # sure data access
-    name = data.get('name')
-    credential = data.get('credential')
-    if name == None or credential == None:
-        return jsonify({"message": "The resource you are accessing is not found."}), 404
-    
     conn = sqlite3.connect('data/nbaDB.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT Account, Password FROM Manager where Account = ?;', (name,))
-    rows = cursor.fetchall()
+    cursor.execute(
+        'SELECT Account, Password FROM Manager where Account = ? and Password = ? limit 1;',
+        (name, credential),
+    )
+    row = cursor.fetchone()
     conn.close()
+    
+    if not row:
+        return jsonify({"message": "The resource you are accessing is not found."}), 404
 
-    for username, password in rows:
-        if credential == password and name == username :  
-            session_id = str(uuid.uuid4().hex)
-            session[session_id] = name
-            response = Response(status=201)
-            response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
-            return response
-        
-    return jsonify({"message": "The resource you are accessing is not found."}), 404
+    session_id = str(uuid.uuid4().hex)
+    session[session_id] = name
+    response = Response(status=201)
+    response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
+    return response
 
 @bp_web_api.route('/auth/logout', methods=['POST'])  
 def logout():
     session_id = request.cookies.get('session_id')
-    if session_id == None :
-        return jsonify({"message": "You are not authorized to access this resource."}), 404       
+    if session_id is None:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
     if session_id in session:
         response = Response(status=204)
-        del session['session_id'] 
+        del session[session_id] 
         response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
         return response  
-    
-    return jsonify({"message": "You are not authorized to access this resource."}), 404
 
-@bp_web_api.route('/auth/login', methods=['POST'])
-def auth_login():
-    "TODO: Stub for the function"
-    return Response(status=201, headers={'Set-Cookie': 'session_id=EXAMPLE; HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'})
+    return jsonify({"message": "You are not authorized to access this resource."}), 401
 
 @bp_web_api.route('/games', methods=['POST'])
 def get_games():
