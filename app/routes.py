@@ -49,6 +49,7 @@ def auth_login():
 
 @bp_web_api.route('/games', methods=['POST'])
 def get_games():
+    "TODO: Stub for the function"
     request_data = request.get_json()
     page = request_data.get('page', {})
     sort = request_data.get('sort', {})
@@ -159,6 +160,7 @@ def get_games():
 
 @bp_web_api.route('/games', methods=['PUT'])
 def put_games():
+    "TODO: Stub for the function"
     request_data = request.get_json()
     
     # if not request_data:
@@ -212,6 +214,7 @@ def put_games():
 
 @bp_web_api.route('/teams', methods=['POST'])
 def GET_teams():
+    "TODO: Stub for the function"
     return {
         "page": {
             "length": 10,
