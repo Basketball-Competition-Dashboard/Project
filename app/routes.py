@@ -233,27 +233,25 @@ def GET_teams():
 @bp_web_api.route('/player-profiles', methods=['POST'])
 def get_player_profiles():
   if not request.is_json:
-      return jsonify({"message": "Your request is invalid."}), 400
+    return jsonify({"message": "Your request is invalid."}), 400
 
   req_data = request.get_json()
-  page = req_data.get('page', {})
-  sort = req_data.get('sort', {})
 
-  length = page.get('length', 0)
-  offset = page.get('offset', 8888)
-  sort_field = sort.get('field', 'name')
-  sort_order = sort.get('order', 'ascending')
+  try:
+    page = req_data['page']
+    sort = req_data['sort']
+    length = page['length']
+    offset = page['offset']
+    sort_field = sort['field']
+    sort_order = sort['order']
+  except KeyError:
+    return jsonify({"message": "Your request is invalid."}), 400
+
   print(length, offset, sort_field, sort_order)
   # TODO: Stub for the response
-  if length == 0 & offset == 8888:
-    return jsonify({
-                    "page": {
-                      "length": 0,
-                      "offset": 8888
-                    },
-                    "values": []
-                  }), 200
-  
+  if length == 0 and offset == 8888:
+    return jsonify([]), 200
+
   response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
   return jsonify(response_data), status_code
 
