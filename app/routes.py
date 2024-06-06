@@ -55,7 +55,9 @@ def login():
 
 @bp_web_api.route('/auth/logout', methods=['POST'])  
 def logout():
-    session_id = request.cookies.get('session_id')  
+    session_id = request.cookies.get('session_id')
+    if session_id == None :
+        return jsonify({"message": "You are not authorized to access this resource."}), 404       
     if session_id in session:
         response = Response(status=204)
         del session['session_id'] 
