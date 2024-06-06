@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, jsonify, render_template, request, make_response, Response
+from flask import Blueprint, Flask, jsonify, render_template, request, Response
 import sqlite3
 import uuid
 from swagger_ui import api_doc
@@ -65,24 +65,6 @@ def logout():
         return response  
     
     return jsonify({"message": "You are not authorized to access this resource."}), 404
-
-@bp_web_api.route('/data', methods=['GET'])
-def get_data():
-    conn = sqlite3.connect('data/nbaDB.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM Team;')
-    rows = cursor.fetchall()
-    conn.close()
-
-    data = []
-    for row in rows:
-        data.append(
-            {
-                'column1': row[0],
-                'column2': row[1],
-            }
-        )
-    return jsonify(data)
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
