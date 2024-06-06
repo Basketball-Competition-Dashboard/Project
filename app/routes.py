@@ -20,48 +20,45 @@ bp_web_page = Blueprint(
     template_folder='../web/dist',
 )
 
-cookie = {}
+# record user session_id in session
+session = {}
 
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
     return jsonify('Pong!')
 
-@bp_web_api.route('/auth/login', methods=['GET', 'POST'])  
+@bp_web_api.route('/auth/login', methods=['POST'])  
 def login():   
-    if request.method == 'GET':  
-           return '''
-     <form action='login' method='POST'>
-     <input type='text' name='name' id='name' placeholder='name'/>
-     <input type='password' name='credential' id='credential' placeholder='credential'/>
-     <input type='submit' name='submit'/>
-     </form>
-                  '''
+    data = request.get_json()
 
+    # sure data access
+    name = data.get('name')
+    credential = data.get('credential')
+    if name == None or credential == None:
+        return jsonify({"message": "The resource you are accessing is not found."}), 404
+    
     conn = sqlite3.connect('data/nbaDB.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM Manager;')
+    cursor.execute('SELECT Account, Password FROM Manager where Account = ?;', (name,))
     rows = cursor.fetchall()
     conn.close()
 
-    data = request.get_json()
-
-    name = data.get('name')
     for username, password in rows:
-        if data.get('credential') == password and name == username :  
+        if credential == password and name == username :  
             session_id = str(uuid.uuid4().hex)
-            cookie['session_id'] = session_id
+            session[session_id] = name
             response = Response(status=201)
             response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
-        return response
-    
+            return response
+        
     return jsonify({"message": "The resource you are accessing is not found."}), 404
 
-@bp_web_api.route('/auth/logout', methods=['GET'])  
+@bp_web_api.route('/auth/logout', methods=['POST'])  
 def logout():
     session_id = request.cookies.get('session_id')  
-    if session_id :
+    if session_id in session:
         response = Response(status=204)
-        cookie['session_id'] = ''
+        del session['session_id'] 
         response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
         return response  
     
