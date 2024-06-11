@@ -1,8 +1,11 @@
 import sqlite3
 import random
+
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+
 def fetch_player_profiles(length, offset, sort_field, sort_order):
     try:
-      conn = sqlite3.connect('data/nbaDB.db')
+      conn = sqlite3.connect(DATABASE_PATH)
       cursor = conn.cursor()
         # 構建排序字段和順序
       sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'
