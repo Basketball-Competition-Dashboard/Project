@@ -23,14 +23,14 @@ bp_web_page = Blueprint(
 )
 
 # record user session_id in session
-session = {}
+sessions = {}
 
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
     return jsonify('Pong!')
 
-@bp_web_api.route('/auth/login', methods=['POST'])  
-def login():
+@bp_web_api.route('/auth/session', methods=['POST'])  
+def create_session():
     try:
         data = request.get_json()
         name = data['name']
@@ -51,21 +51,21 @@ def login():
         return jsonify({"message": "The resource you are accessing is not found."}), 404
 
     session_id = str(uuid.uuid4().hex)
-    session[session_id] = name
+    sessions[session_id] = name
     response = Response(status=201)
     response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
     return response
 
-@bp_web_api.route('/auth/logout', methods=['POST'])  
-def logout():
+@bp_web_api.route('/auth/session', methods=['DELETE'])  
+def delete_session():
     session_id = request.cookies.get('session_id')
     if session_id is None:
         return jsonify({"message": "You are not authorized to access this resource."}), 401
-    if session_id in session:
+    if session_id in sessions:
         response = Response(status=204)
-        del session[session_id] 
+        del sessions[session_id]
         response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
-        return response  
+        return response
 
     return jsonify({"message": "You are not authorized to access this resource."}), 401
 
