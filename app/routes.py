@@ -4,6 +4,8 @@ import uuid
 from swagger_ui import api_doc
 from app import dataProcess_player_profiles
 
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
 bp_web_api = Blueprint(
@@ -33,10 +35,10 @@ def login():
         data = request.get_json()
         name = data['name']
         credential = data['credential']
-    except KeyError:
+    except:
         return jsonify({"message": "Your request is invalid."}), 400
 
-    conn = sqlite3.connect('data/nbaDB.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     cursor.execute(
         'SELECT Account, Password FROM Manager where Account = ? and Password = ? limit 1;',
@@ -80,7 +82,7 @@ def get_games():
     sort_field = sort.get('field', 'date')
     sort_order = sort.get('order', 'ascending')
 
-    conn = sqlite3.connect('data/nbaDB.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
     sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
@@ -186,7 +188,7 @@ def put_games():
     # if not request_data:
     #     return make_response(jsonify({'message': 'Your request is invalid.'}), 400)
     
-    # conn = sqlite3.connect('data/nbaDB.db')
+    # conn = sqlite3.connect(DATABASE_PATH)
     # cursor = conn.cursor()
     
     # for game in request_data:
