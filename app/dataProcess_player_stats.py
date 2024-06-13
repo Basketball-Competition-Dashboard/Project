@@ -143,7 +143,6 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
     
     except Exception as e:
         return {"message": "Sorry, an unexpected error has occurred."}, 500
-    
 
 def update_player_stats(id, gid, update_fields):
 
