@@ -2,8 +2,11 @@ from flask import Blueprint, Flask, jsonify, render_template, request, Response,
 import sqlite3
 import uuid
 from swagger_ui import api_doc
-from app import dataProcess_player_profiles, dataProcess_player_stats
+from app import dataProcess_player_stats
 
+
+# DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+DATABASE_PATH = f'/home/yuching/DBMS/Project/data/nbaDB.db'
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
 bp_web_api = Blueprint(
@@ -21,55 +24,51 @@ bp_web_page = Blueprint(
 )
 
 # record user session_id in session
-session = {}
+sessions = {}
 
 @bp_web_api.route('/ping', methods=['GET'])
 def ping():
     return jsonify('Pong!')
 
-@bp_web_api.route('/auth/login', methods=['POST'])  
-def login():   
-    data = request.get_json()
+@bp_web_api.route('/auth/session', methods=['POST'])  
+def create_session():
+    try:
+        data = request.get_json()
+        name = data['name']
+        credential = data['credential']
+    except:
+        return jsonify({"message": "Your request is invalid."}), 400
 
-    # sure data access
-    name = data.get('name')
-    credential = data.get('credential')
-    if name == None or credential == None:
-        return jsonify({"message": "The resource you are accessing is not found."}), 404
-    
-    conn = sqlite3.connect('data/nbaDB.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT Account, Password FROM Manager where Account = ?;', (name,))
-    rows = cursor.fetchall()
+    cursor.execute(
+        'SELECT Account, Password FROM Manager where Account = ? and Password = ? limit 1;',
+        (name, credential),
+    )
+    row = cursor.fetchone()
     conn.close()
+    
+    if not row:
+        return jsonify({"message": "The resource you are accessing is not found."}), 404
 
-    for username, password in rows:
-        if credential == password and name == username :  
-            session_id = str(uuid.uuid4().hex)
-            session[session_id] = name
-            response = Response(status=201)
-            response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
-            return response
-        
-    return jsonify({"message": "The resource you are accessing is not found."}), 404
+    session_id = str(uuid.uuid4().hex)
+    sessions[session_id] = name
+    response = Response(status=201)
+    response.set_cookie('session_id', session_id, httponly=True, max_age=31536000, path='/', samesite='Strict')
+    return response
 
-@bp_web_api.route('/auth/logout', methods=['POST'])  
-def logout():
+@bp_web_api.route('/auth/session', methods=['DELETE'])  
+def delete_session():
     session_id = request.cookies.get('session_id')
     if session_id is None:
         return jsonify({"message": "You are not authorized to access this resource."}), 401
-    if session_id in session:
+    if session_id in sessions:
         response = Response(status=204)
-        del session[session_id] 
+        del sessions[session_id]
         response.set_cookie('session_id', '', httponly=True, max_age=0, path='/', samesite='Strict')
-        return response  
+        return response
 
     return jsonify({"message": "You are not authorized to access this resource."}), 401
-
-@bp_web_api.route('/auth/login', methods=['POST'])
-def auth_login():
-    "TODO: Stub for the function"
-    return Response(status=201, headers={'Set-Cookie': 'session_id=EXAMPLE; HttpOnly; Max-Age=31536000; Path=/; SameSite=Strict'})
 
 @bp_web_api.route('/games', methods=['POST'])
 def get_games():
@@ -253,56 +252,56 @@ def GET_teams():
         ]
     }
 
-# Player Profiles API
-@bp_web_api.route('/player-profiles', methods=['POST'])
-def get_player_profiles():
-  if not request.is_json:
-    return jsonify({"message": "Your request is invalid."}), 400
+# # Player Profiles API
+# @bp_web_api.route('/player-profiles', methods=['POST'])
+# def get_player_profiles():
+#   if not request.is_json:
+#     return jsonify({"message": "Your request is invalid."}), 400
 
-  req_data = request.get_json()
+#   req_data = request.get_json()
 
-  try:
-    page = req_data['page']
-    sort = req_data['sort']
-    length = page['length']
-    offset = page['offset']
-    sort_field = sort['field']
-    sort_order = sort['order']
-  except KeyError:
-    return jsonify({"message": "Your request is invalid."}), 400
+#   try:
+#     page = req_data['page']
+#     sort = req_data['sort']
+#     length = page['length']
+#     offset = page['offset']
+#     sort_field = sort['field']
+#     sort_order = sort['order']
+#   except KeyError:
+#     return jsonify({"message": "Your request is invalid."}), 400
 
-  print(length, offset, sort_field, sort_order)
-  # TODO: Stub for the response
-  if length == 0 and offset == 8888:
-    return jsonify([]), 200
+#   print(length, offset, sort_field, sort_order)
+#   # TODO: Stub for the response
+#   if length == 0 and offset == 8888:
+#     return jsonify([]), 200
 
-  response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
-  return jsonify(response_data), status_code
+#   response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
+#   return jsonify(response_data), status_code
 
-@bp_web_api.route('/player-profiles', methods=['PUT'])
-def update_or_create_player_profile():
-    "TODO: Stub for the function"
-    response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-    return jsonify(response_data), status_code
-    cookies = request.cookies
-    session_id = cookies.get('session_id')
+# @bp_web_api.route('/player-profiles', methods=['PUT'])
+# def update_or_create_player_profile():
+#     "TODO: Stub for the function"
+#     response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+#     return jsonify(response_data), status_code
+#     cookies = request.cookies
+#     session_id = cookies.get('session_id')
     
-    print("Cookies received:", cookies)
-    print("Session ID:", session_id)
-    if not request.is_json:
-      return jsonify({"message": "Your request is invalid."}), 400
+#     print("Cookies received:", cookies)
+#     print("Session ID:", session_id)
+#     if not request.is_json:
+#       return jsonify({"message": "Your request is invalid."}), 400
     
-    req_data = request.get_json()
-    print(req_data[0])
-    return "ok"
+#     req_data = request.get_json()
+#     print(req_data[0])
+#     return "ok"
 
-@bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
-def delete_player_profile(id):
-    "TODO: Stub for the function"
-    # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-    # return jsonify(response_data), status_code
-    response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
-    return jsonify(response_data), status_code
+# @bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
+# def delete_player_profile(id):
+#     "TODO: Stub for the function"
+#     # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
+#     # return jsonify(response_data), status_code
+#     response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
+#     return jsonify(response_data), status_code
 
 
 # Player Stats API 取得球員表現
@@ -335,7 +334,7 @@ def create_player_stats():
 
     
     req_data = request.get_json()
-    if session_id in session:
+    if session_id in sessions:
         try:
             name = req_data['name']
             game_date = req_data['game_date']
@@ -384,7 +383,7 @@ def update_player_stats(id, game_id):
         return jsonify({"message": "Your request is invalid."}), 400
 
     req_data = request.get_json()
-    if session_id in session:
+    if session_id in sessions:
 
         # print("pid: ", id, game_id)
         if id is None or game_id is None:
@@ -415,7 +414,7 @@ def update_player_stats(id, game_id):
 def delete_player_stats(id, game_id):
     session_id = request.cookies.get('session_id')
 
-    if session_id in session:
+    if session_id in sessions:
 
         if id is None or game_id is None:
             return jsonify({"message": "Your request is invalid."}), 400
