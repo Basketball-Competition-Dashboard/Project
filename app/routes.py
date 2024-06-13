@@ -86,7 +86,7 @@ def get_games():
     cursor = conn.cursor()
     
     sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
-    # query = f'''
+    # query = '''
     #     SELECT 
     #         ATTEND.GID, Game.Date, Team.TName, Attend.Score, Attend.is_win_team 
     #     FROM 
@@ -98,10 +98,10 @@ def get_games():
     #     where
     #         Attend.GID='0024600008' 
     #     ORDER BY 
-    #         {sort_field} {sort_order_sql} 
+    #         ? ?
     #     LIMIT ? OFFSET ?
     # '''
-    query = f'''
+    query = '''
         SELECT 
             ATTEND.GID, Game.Date, ATTEND.TID, Team.TName, Attend.Score, Attend.is_win_team
         FROM 
@@ -113,10 +113,10 @@ def get_games():
         where
             Attend.GID='0024600008' 
         ORDER BY 
-            {sort_field} {sort_order_sql} 
+            ? ?
         LIMIT ? OFFSET ?
     '''
-    cursor.execute(query, (length, offset))
+    cursor.execute(query, (sort_field, sort_order_sql, length, offset))
     rows = cursor.fetchall()
     conn.close()
     print(rows)

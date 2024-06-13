@@ -12,7 +12,7 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
       order_direction = 'ASC' if sort_order == 'ascending' else 'DESC'
 
       # 構建SQL查詢語句
-      sql = f"""
+      sql = """
           SELECT
               Player.BDate AS birthdate,
               Player.Country AS country,
@@ -24,10 +24,10 @@ def fetch_player_profiles(length, offset, sort_field, sort_order):
               Player.Weight AS weight
           FROM Player
           JOIN Team ON Player.TID = Team.TID
-          ORDER BY {sort_column} {order_direction}
-          LIMIT {length} OFFSET {offset}
+          ORDER BY ? ?
+          LIMIT ? OFFSET ?
       """
-      cursor.execute(sql)
+      cursor.execute(sql, (sort_column, order_direction, length, offset))
       rows = cursor.fetchall()
       conn.close()
       print(rows)
