@@ -7,6 +7,8 @@ from app import dataProcess_player_stats
 
 DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
 bp_web_api = Blueprint(
@@ -72,6 +74,7 @@ def delete_session():
 
 @bp_web_api.route('/games', methods=['POST'])
 def get_games():
+    "TODO: Stub for the function"
     request_data = request.get_json()
     page = request_data.get('page', {})
     sort = request_data.get('sort', {})
@@ -82,11 +85,11 @@ def get_games():
     sort_field = sort.get('field', 'date')
     sort_order = sort.get('order', 'ascending')
 
-    conn = sqlite3.connect('data/nbaDB.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
     sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
-    # query = f'''
+    # query = '''
     #     SELECT 
     #         ATTEND.GID, Game.Date, Team.TName, Attend.Score, Attend.is_win_team 
     #     FROM 
@@ -98,10 +101,10 @@ def get_games():
     #     where
     #         Attend.GID='0024600008' 
     #     ORDER BY 
-    #         {sort_field} {sort_order_sql} 
+    #         ? ?
     #     LIMIT ? OFFSET ?
     # '''
-    query = f'''
+    query = '''
         SELECT 
             ATTEND.GID, Game.Date, ATTEND.TID, Team.TName, Attend.Score, Attend.is_win_team
         FROM 
@@ -113,10 +116,10 @@ def get_games():
         where
             Attend.GID='0024600008' 
         ORDER BY 
-            {sort_field} {sort_order_sql} 
+            ? ?
         LIMIT ? OFFSET ?
     '''
-    cursor.execute(query, (length, offset))
+    cursor.execute(query, (sort_field, sort_order_sql, length, offset))
     rows = cursor.fetchall()
     conn.close()
     print(rows)
@@ -182,12 +185,13 @@ def get_games():
 
 @bp_web_api.route('/games', methods=['PUT'])
 def put_games():
+    "TODO: Stub for the function"
     request_data = request.get_json()
     
     # if not request_data:
     #     return make_response(jsonify({'message': 'Your request is invalid.'}), 400)
     
-    # conn = sqlite3.connect('data/nbaDB.db')
+    # conn = sqlite3.connect(DATABASE_PATH)
     # cursor = conn.cursor()
     
     # for game in request_data:
@@ -235,6 +239,7 @@ def put_games():
 
 @bp_web_api.route('/teams', methods=['POST'])
 def GET_teams():
+    "TODO: Stub for the function"
     return {
         "page": {
             "length": 10,
