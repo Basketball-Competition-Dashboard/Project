@@ -46,7 +46,7 @@ def get_player_stats(length, offset, sort_field, sort_order):
       cursor.execute(sql)
       rows = cursor.fetchall()
       conn.close()
-      print(rows[0][0])
+    #   print(rows[0][0])
 
 
       values = [{
@@ -79,7 +79,7 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
 
         # print(name)
         lname, fname = name.split()
-        print(lname, fname)
+        # print(lname, fname)
 
         cursor.execute("SELECT PID FROM Player WHERE Fname = ? AND Lname = ?", (fname, lname))
         player = cursor.fetchone()
@@ -99,13 +99,13 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
         
 
         # if not player or not game:
-        if not player:
+        if not player or not game:
             conn.close()
             return {"message": "The resource you are accessing is not found."}, 404
         
-        if not game:
-            conn.close()
-            return {"message": "The game you are accessing is not found."}, 404
+        # if not game:
+        #     conn.close()
+        #     return {"message": "The game you are accessing is not found."}, 404
 
         player_id = player[0]
         #print(f"Player ID: {player_id}")
@@ -144,6 +144,7 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
     
     except Exception as e:
         return {"message": "Sorry, an unexpected error has occurred."}, 500
+
 
 def update_player_stats(id, gid, update_fields):
 
