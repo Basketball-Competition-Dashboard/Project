@@ -1,6 +1,6 @@
 import sqlite3
 
-def fetch_player_stats(length, offset, sort_field, sort_order):
+def get_player_stats(length, offset, sort_field, sort_order):
    try:
       conn = sqlite3.connect('data/nbaDB.db')
       cursor = conn.cursor()
@@ -79,7 +79,7 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
 
         # print(name)
         lname, fname = name.split()
-        # print(lname, fname)
+        print(lname, fname)
 
         cursor.execute("SELECT PID FROM Player WHERE Fname = ? AND Lname = ?", (fname, lname))
         player = cursor.fetchone()
@@ -98,13 +98,14 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
         game = cursor.fetchone()
         
 
-        if not player or not game:
+        # if not player or not game:
+        if not player:
             conn.close()
             return {"message": "The resource you are accessing is not found."}, 404
         
-        # if not game:
-        #     conn.close()
-        #     return {"message": "The game you are accessing is not found."}, 404
+        if not game:
+            conn.close()
+            return {"message": "The game you are accessing is not found."}, 404
 
         player_id = player[0]
         #print(f"Player ID: {player_id}")

@@ -5,8 +5,8 @@ from swagger_ui import api_doc
 from app import dataProcess_player_stats
 
 
-# DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
-DATABASE_PATH = f'/home/yuching/DBMS/Project/data/nbaDB.db'
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
 bp_web_api = Blueprint(
@@ -252,60 +252,10 @@ def GET_teams():
         ]
     }
 
-# # Player Profiles API
-# @bp_web_api.route('/player-profiles', methods=['POST'])
-# def get_player_profiles():
-#   if not request.is_json:
-#     return jsonify({"message": "Your request is invalid."}), 400
-
-#   req_data = request.get_json()
-
-#   try:
-#     page = req_data['page']
-#     sort = req_data['sort']
-#     length = page['length']
-#     offset = page['offset']
-#     sort_field = sort['field']
-#     sort_order = sort['order']
-#   except KeyError:
-#     return jsonify({"message": "Your request is invalid."}), 400
-
-#   print(length, offset, sort_field, sort_order)
-#   # TODO: Stub for the response
-#   if length == 0 and offset == 8888:
-#     return jsonify([]), 200
-
-#   response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
-#   return jsonify(response_data), status_code
-
-# @bp_web_api.route('/player-profiles', methods=['PUT'])
-# def update_or_create_player_profile():
-#     "TODO: Stub for the function"
-#     response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-#     return jsonify(response_data), status_code
-#     cookies = request.cookies
-#     session_id = cookies.get('session_id')
-    
-#     print("Cookies received:", cookies)
-#     print("Session ID:", session_id)
-#     if not request.is_json:
-#       return jsonify({"message": "Your request is invalid."}), 400
-    
-#     req_data = request.get_json()
-#     print(req_data[0])
-#     return "ok"
-
-# @bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
-# def delete_player_profile(id):
-#     "TODO: Stub for the function"
-#     # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-#     # return jsonify(response_data), status_code
-#     response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
-#     return jsonify(response_data), status_code
 
 
 # Player Stats API 取得球員表現
-@bp_web_api.route('/players/stat', methods=['GET'])
+@bp_web_api.route('/players/stats', methods=['GET'])
 def get_player_stats():
     page_offset = request.args.get('page_offset', type=int)
     page_length = request.args.get('page_length', type=int)
@@ -320,7 +270,7 @@ def get_player_stats():
     
     print(page_offset, page_length, sort_field, sort_order)
  
-    response_data, status_code = dataProcess_player_stats.fetch_player_stats(page_length, page_offset, sort_field, sort_order)
+    response_data, status_code = dataProcess_player_stats.get_player_stats(page_length, page_offset, sort_field, sort_order)
     # return jsonify(response_data), status_code
     return jsonify(response_data), status_code
 
@@ -365,7 +315,7 @@ def create_player_stats():
     else:
         return jsonify({"message": "You are not authorized to access this resource."}), 401
 
-
+# player-stats 更新
 @bp_web_api.route('/players/<int:id>/stats/<int:game_id>', methods=['PATCH'])
 def update_player_stats(id, game_id):
     
@@ -409,7 +359,7 @@ def update_player_stats(id, game_id):
         return jsonify({"message": "You are not authorized to access this resource."}), 401
 
 
-
+# player-stats 刪除
 @bp_web_api.route('/players/<int:id>/stats/<int:game_id>', methods=['DELETE'])
 def delete_player_stats(id, game_id):
     session_id = request.cookies.get('session_id')
