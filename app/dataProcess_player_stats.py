@@ -1,8 +1,10 @@
 import sqlite3
 
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+
 def get_player_stats(length, offset, sort_field, sort_order):
    try:
-      conn = sqlite3.connect('data/nbaDB.db')
+      conn = sqlite3.connect(DATABASE_PATH)
       cursor = conn.cursor()
         # 構建排序字段和順序
     #   sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'
@@ -74,7 +76,7 @@ def get_player_stats(length, offset, sort_field, sort_order):
 
 def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist, hit, steal, rebound, free_throw, score):
     try:
-        conn = sqlite3.connect('data/nbaDB.db')
+        conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
 
         # print(name)
@@ -149,7 +151,7 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
 def update_player_stats(id, gid, update_fields):
 
     try:
-        conn = sqlite3.connect('data/nbaDB.db')
+        conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
 
         # Check if the record exists
@@ -181,7 +183,7 @@ def update_player_stats(id, gid, update_fields):
 def delete_player_stats(id, game_id):
 
     try:
-        conn = sqlite3.connect('data/nbaDB.db')
+        conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
 
         
