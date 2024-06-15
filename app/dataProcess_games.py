@@ -132,7 +132,6 @@ def get_team_id_and_city(team_name):
 
 def fetch_games_details(page_offset, page_length, sort_field, sort_order):
     try:
-        sort_column = 'home_team.TName' if sort_field == 'name' else 'g.Date'
         sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
@@ -160,7 +159,20 @@ def fetch_games_details(page_offset, page_length, sort_field, sort_order):
                 Team AS home_team ON home_attend.TID = home_team.TID
             JOIN 
                 Team AS away_team ON away_attend.TID = away_team.TID
-            ORDER BY {sort_column} {sort_order_sql}
+            ORDER BY
+                CASE 
+                    WHEN '{sort_field}' = 'away_abbr' THEN away_abbr
+                    WHEN '{sort_field}' = 'away_id' THEN away_id
+                    WHEN '{sort_field}' = 'away_name' THEN away_name
+                    WHEN '{sort_field}' = 'away_score' THEN away_score
+                    WHEN '{sort_field}' = 'date' THEN date
+                    WHEN '{sort_field}' = 'home_abbr' THEN home_abbr
+                    WHEN '{sort_field}' = 'home_id' THEN home_id
+                    WHEN '{sort_field}' = 'home_name' THEN home_name
+                    WHEN '{sort_field}' = 'home_score' THEN home_score
+                    WHEN '{sort_field}' = 'is_home_winner' THEN is_home_winner
+                    ELSE g.Date
+                END {sort_order_sql}
             LIMIT ? OFFSET ?
         """
         
