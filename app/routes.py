@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, jsonify, render_template, request, Response,
 import sqlite3
 import uuid
 from swagger_ui import api_doc
-from app import dataProcess_player_profiles,dataProcess_games
+from app import dataProcess_player_profiles,dataProcess_games,dataProcess_teams
 
 DATABASE_PATH = f'data/nbaDB.db'
 
@@ -152,7 +152,7 @@ def POST_teams():
         
         data = list(zip(fields, values))
         
-        response, status_code = dataProcess_games.create_teams_status(data)
+        response, status_code = dataProcess_teams.create_teams_status(data)
 
         return jsonify(response),status_code
 
@@ -160,6 +160,15 @@ def POST_teams():
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500    
 
+@bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
+def PATCH_teams(id):
+    try:
+        data = request.json
+        response, status_code = dataProcess_teams.update_teams_status(id,data)
+        return jsonify(response),status_code
+
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
 @bp_web_api.route('/team', methods=['POST'])
 def create_team_stub():
