@@ -34,6 +34,7 @@ sessions = {}
 def ping():
     return jsonify('Pong!')
 
+
 @bp_web_api.route('/auth/session', methods=['POST'])  
 def create_session():
     try:
@@ -74,9 +75,10 @@ def delete_session():
 
     return jsonify({"message": "You are not authorized to access this resource."}), 401
 
-@bp_web_api.route('/games', methods=['POST'])
-def get_games():
-    "TODO: Stub for the function"
+
+@bp_web_api.route('/games', methods=['GET'])
+def get_games_stub():
+    return jsonify([]), 200
     request_data = request.get_json()
     page = request_data.get('page', {})
     sort = request_data.get('sort', {})
@@ -185,11 +187,16 @@ def get_games():
 
     return jsonify(response)
 
-@bp_web_api.route('/games', methods=['PUT'])
-def put_games():
-    "TODO: Stub for the function"
+@bp_web_api.route('/game', methods=['POST'])
+def create_game_stub():
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+@bp_web_api.route('/games/<int:id>/teams/<int:team_id>', methods=['PATCH'])
+def update_game_team_stub(id, team_id):
     request_data = request.get_json()
-    
+
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
     # if not request_data:
     #     return make_response(jsonify({'message': 'Your request is invalid.'}), 400)
     
@@ -239,9 +246,10 @@ def put_games():
 
     return make_response(jsonify({'message': 'Created'}), 201 if any('id' not in game for game in request_data) else 204)
 
-@bp_web_api.route('/teams', methods=['POST'])
-def GET_teams():
-    "TODO: Stub for the function"
+
+@bp_web_api.route('/teams', methods=['GET'])
+def get_teams_stub():
+    return jsonify([]), 200
     return {
         "page": {
             "length": 10,
@@ -259,6 +267,30 @@ def GET_teams():
         ]
     }
 
+@bp_web_api.route('/team', methods=['POST'])
+def create_team_stub():
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+@bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
+def update_team_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+
+@bp_web_api.route('/players/profile', methods=['GET'])
+def get_players_profile_stub():
+    return jsonify([]), 200
+
+@bp_web_api.route('/player/profile', methods=['POST'])
+def create_player_profile_stub():
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+@bp_web_api.route('/players/<int:id>/profile', methods=['PATCH'])
+def update_player_profile_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+@bp_web_api.route('/players/<int:id>/profile', methods=['DELETE'])
+def delete_player_profile_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
 
 
 # Player Stats API 取得球員表現
@@ -280,7 +312,6 @@ def get_player_stats():
     response_data, status_code = dataProcess_player_stats.get_player_stats(page_length, page_offset, sort_field, sort_order)
     # return jsonify(response_data), status_code
     return jsonify(response_data), status_code
-
 
 # Player Stats API 新增球員資料
 @bp_web_api.route('/player/stat', methods=['POST'])
@@ -365,7 +396,6 @@ def update_player_stats(id, game_id):
     else:
         return jsonify({"message": "You are not authorized to access this resource."}), 401
 
-
 # player-stats 刪除
 @bp_web_api.route('/players/<int:id>/stats/<int:game_id>', methods=['DELETE'])
 def delete_player_stats(id, game_id):
@@ -388,9 +418,6 @@ def delete_player_stats(id, game_id):
     
     else:
         return jsonify({"message": "You are not authorized to access this resource."}), 401
-
-
-
 
 
 # Render the HTML file at ../web/dist/index.html
