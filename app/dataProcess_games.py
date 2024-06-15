@@ -1,6 +1,7 @@
+from flask import jsonify
 import sqlite3
 
-DATABASE_PATH = f'data/nbaDB.db'
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 
 def create_games_status(data,home_team_city,home_team_id,away_team_id):
     try:
@@ -137,7 +138,7 @@ def fetch_games_details(page_offset, page_length, sort_field, sort_order):
             response.append(dict(zip(cols, row)))
         conn.close() 
 
-        return response, 201
+        return response, 200
     
     except sqlite3.Error as e:
         print(f"SQLite error: {e}")
