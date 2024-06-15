@@ -2,9 +2,9 @@ from flask import Blueprint, Flask, jsonify, render_template, request, Response,
 import sqlite3
 import uuid
 from swagger_ui import api_doc
-from app import dataProcess_player_profiles,dataProcess_games,dataProcess_teams
+from app import dataProcess_player_profiles, dataProcess_player_stats, dataProcess_games, dataProcess_teams
 
-DATABASE_PATH = f'data/nbaDB.db'
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
@@ -107,7 +107,6 @@ def POST_games():
 
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
-
     
 @bp_web_api.route('/games', methods=['GET'])
 def GET_games():
@@ -135,7 +134,6 @@ def PATCH_games(id, team_id):
 
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
-
 
 
 @bp_web_api.route('/team', methods=['POST'])
@@ -168,8 +166,16 @@ def POST_teams():
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
+@bp_web_api.route('/teams', methods=['GET'])
+def GET_teams_stub():
+    return jsonify([]), 200
+
 @bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
 def PATCH_teams(id):
+    session_id = request.cookies.get('session_id')
+    if session_id not in sessions:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
     try:
         data = request.json
         response, status_code = dataProcess_teams.update_teams_status(id,data)
@@ -177,14 +183,6 @@ def PATCH_teams(id):
 
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
-
-@bp_web_api.route('/team', methods=['POST'])
-def create_team_stub():
-    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
-
-@bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
-def update_team_stub(id):
-    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
 
 
 @bp_web_api.route('/players/profile', methods=['GET'])

@@ -1,6 +1,7 @@
+from flask import jsonify
 import sqlite3
 
-DATABASE_PATH = f'data/nbaDB.db'
+DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 
 def create_teams_status(data):
     try:
@@ -55,12 +56,12 @@ def update_teams_status(id,data):
         coach = data["coach"]
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
-        
+
         cursor.execute("UPDATE Team SET CoachName = ? WHERE TID =? ", (coach,id))
         conn.commit()
         conn.close()
         return {'message': 'Team status updated'}, 201
-    
+
     except sqlite3.Error as e:
         print(f"SQLite error: {e}")
         return {'error': str(e)}, 500
