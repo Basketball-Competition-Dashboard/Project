@@ -73,39 +73,41 @@ def delete_session():
 
 @bp_web_api.route('/game', methods=['POST'])
 def POST_games():
+    session_id = request.cookies.get('session_id')
+    if session_id not in sessions:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
     try:
         data = request.get_json()
         required_fields = ['date', 'away_name', 'home_name']
         optional_fields = ["away_score", "home_score", "is_home_winner"]
 
-        # 確認required資訊都有
         for field in required_fields:
             if field not in data:
                 return jsonify({'message': 'Your request is invalid.'}), 400
 
-        # 確認主隊與客隊存在於Team中
         home_team_name = data['home_name']
         away_team_name = data['away_name']
         home_team_id, home_team_city = dataProcess_games.get_team_id_and_city(home_team_name)
         away_team_id, _ = dataProcess_games.get_team_id_and_city(away_team_name)
         if home_team_id is None or away_team_id is None:
             return jsonify({'message': 'One or both teams do not exist.'}), 400
-        
+
         fields = required_fields.copy()
-        values = [data[field] for field in required_fields]  
+        values = [data[field] for field in required_fields]
         for field in optional_fields:
             if field in data:
                 fields.append(field)
-                values.append(data[field])  
-        
-        data = list(zip(fields, values))
-        
-        response, status_code = dataProcess_games.create_games_status(data,home_team_city,home_team_id,away_team_id)
+                values.append(data[field])
 
-        return jsonify(response),status_code
+        data = list(zip(fields, values))
+
+        response, status_code = dataProcess_games.create_games_status(data, home_team_city, home_team_id, away_team_id)
+        return jsonify(response), status_code
 
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
+
     
 @bp_web_api.route('/games', methods=['GET'])
 def GET_games():
@@ -122,43 +124,49 @@ def GET_games():
     
 @bp_web_api.route('/games/<int:id>/teams/<int:team_id>', methods=['PATCH'])
 def PATCH_games(id, team_id):
+    session_id = request.cookies.get('session_id')
+    if session_id not in sessions:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
     try:
         data = request.json
-        response, status_code = dataProcess_games.update_games_status(id,team_id,data)
-        return jsonify(response),status_code
+        response, status_code = dataProcess_games.update_games_status(id, team_id, data)
+        return jsonify(response), status_code
 
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
 
+
 @bp_web_api.route('/team', methods=['POST'])
 def POST_teams():
+    session_id = request.cookies.get('session_id')
+    if session_id not in sessions:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
     try:
         data = request.get_json()
-        required_fields = ['abbr', 'city', 'name','year_founded']
+        required_fields = ['abbr', 'city', 'name', 'year_founded']
         optional_fields = ['coach']
 
-        # 確認required資訊都有
         for field in required_fields:
             if field not in data:
                 return jsonify({'message': 'Your request is invalid.'}), 400
-        
+
         fields = required_fields.copy()
-        values = [data[field] for field in required_fields]  
+        values = [data[field] for field in required_fields]
         for field in optional_fields:
             if field in data:
                 fields.append(field)
-                values.append(data[field])  
-        
+                values.append(data[field])
+
         data = list(zip(fields, values))
-        
+
         response, status_code = dataProcess_teams.create_teams_status(data)
-
-        return jsonify(response),status_code
-
+        return jsonify(response), status_code
 
     except Exception as e:
-        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500    
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
 @bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
 def PATCH_teams(id):
