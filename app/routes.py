@@ -29,6 +29,7 @@ sessions = {}
 def ping():
     return jsonify('Pong!')
 
+
 @bp_web_api.route('/auth/session', methods=['POST'])  
 def create_session():
     try:
@@ -68,6 +69,7 @@ def delete_session():
         return response
 
     return jsonify({"message": "You are not authorized to access this resource."}), 401
+
 
 @bp_web_api.route('/game', methods=['POST'])
 def POST_games():
@@ -128,6 +130,7 @@ def PATCH_games(id, team_id):
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
+
 @bp_web_api.route('/team', methods=['POST'])
 def POST_teams():
     try:
@@ -153,59 +156,163 @@ def POST_teams():
 
         return jsonify(response),status_code
 
+
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500    
 
-# Player Profiles API
-@bp_web_api.route('/player-profiles', methods=['POST'])
-def get_player_profiles():
-  if not request.is_json:
-    return jsonify({"message": "Your request is invalid."}), 400
 
-  req_data = request.get_json()
+@bp_web_api.route('/team', methods=['POST'])
+def create_team_stub():
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
 
-  try:
-    page = req_data['page']
-    sort = req_data['sort']
-    length = page['length']
-    offset = page['offset']
-    sort_field = sort['field']
-    sort_order = sort['order']
-  except KeyError:
-    return jsonify({"message": "Your request is invalid."}), 400
+@bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
+def update_team_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
 
-  print(length, offset, sort_field, sort_order)
-  # TODO: Stub for the response
-  if length == 0 and offset == 8888:
+
+@bp_web_api.route('/players/profile', methods=['GET'])
+def get_players_profile_stub():
     return jsonify([]), 200
 
-  response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
-  return jsonify(response_data), status_code
+@bp_web_api.route('/player/profile', methods=['POST'])
+def create_player_profile_stub():
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
 
-@bp_web_api.route('/player-profiles', methods=['PUT'])
-def update_or_create_player_profile():
-    "TODO: Stub for the function"
-    response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-    return jsonify(response_data), status_code
-    cookies = request.cookies
-    session_id = cookies.get('session_id')
+@bp_web_api.route('/players/<int:id>/profile', methods=['PATCH'])
+def update_player_profile_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+@bp_web_api.route('/players/<int:id>/profile', methods=['DELETE'])
+def delete_player_profile_stub(id):
+    return jsonify({'message': 'You are not authorized to access this resource.'}), 401
+
+
+# Player Stats API 取得球員表現
+@bp_web_api.route('/players/stats', methods=['GET'])
+def get_player_stats():
+    page_offset = request.args.get('page_offset', type=int)
+    page_length = request.args.get('page_length', type=int)
+    sort_field = request.args.get('sort_field')
+    sort_order = request.args.get('sort_order')
+
+    if page_offset is None or page_length is None or not sort_field or not sort_order:
+        return jsonify({"message": "Your request is invalid."}), 400
+
+    if page_length == 0:
+        return jsonify([]), 200
     
-    print("Cookies received:", cookies)
-    print("Session ID:", session_id)
+    print(page_offset, page_length, sort_field, sort_order)
+ 
+    response_data, status_code = dataProcess_player_stats.get_player_stats(page_length, page_offset, sort_field, sort_order)
+    # return jsonify(response_data), status_code
+    return jsonify(response_data), status_code
+
+# Player Stats API 新增球員資料
+@bp_web_api.route('/player/stat', methods=['POST'])
+def create_player_stats():
+    session_id = request.cookies.get('session_id')
     if not request.is_json:
-      return jsonify({"message": "Your request is invalid."}), 400
+        return jsonify({"message": "Your request is invalid."}), 400
+
     
     req_data = request.get_json()
-    print(req_data[0])
-    return "ok"
+    if session_id in sessions:
+        try:
+            name = req_data['name']
+            game_date = req_data['game_date']
+            game_away_abbr = req_data['game_away_abbr']
+            game_home_abbr = req_data['game_home_abbr']
+        except KeyError:
+            return jsonify({"message": "Your here request is invalid."}), 400
+        
+        assist = req_data.get('assist', None)
+        hit = req_data.get('hit', None)
+        steal = req_data.get('steal', None)
+        rebound = req_data.get('rebound', None)
+        free_throw = req_data.get('free_throw', None)
+        score = req_data.get('score', None)
 
-@bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
-def delete_player_profile(id):
-    "TODO: Stub for the function"
-    # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-    # return jsonify(response_data), status_code
-    response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
-    return jsonify(response_data), status_code
+        #print(name,game_date,game_away_abbr,game_home_abbr,assist,hit,steal,rebound,free_throw,score)
+        
+        response_data, status_code = dataProcess_player_stats.create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist, hit, steal, rebound, free_throw, score)
+        
+        # print("create: ", response_data)
+
+        # player_id = response_data['id']
+        # game_id = response_data['game_id']
+        # record, status_code1 = dataProcess_player_stats.fetch_game_record(player_id, game_id)
+        # print("create and search: ",record, status_code1)
+
+        return jsonify(response_data), status_code
+    else:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
+# player-stats 更新
+@bp_web_api.route('/players/<int:id>/stats/<int:game_id>', methods=['PATCH'])
+def update_player_stats(id, game_id):
+    
+    key_to_column_mapping = {
+    'assist': 'Assist',
+    'hit': 'Hit',
+    'steal': 'Steal',
+    'rebound': 'Rebound',
+    'free_throw': 'FreeThrow',
+    'score': 'Score'
+    }
+    
+    session_id = request.cookies.get('session_id')
+    if not request.is_json:
+        return jsonify({"message": "Your request is invalid."}), 400
+
+    req_data = request.get_json()
+    if session_id in sessions:
+
+        # print("pid: ", id, game_id)
+        if id is None or game_id is None:
+            return jsonify({"message": "Your request is invalid."}), 400
+
+        update_fields = {key_to_column_mapping[k]: v for k, v in req_data.items() if k in key_to_column_mapping}
+        # print(update_fields)
+
+        if not update_fields:
+            return jsonify({"message": "No valid fields to update."}), 400
+
+        # record, status_code1 = dataProcess_player_stats.fetch_game_record(id, game_id)
+        # print("before update: ",record, status_code1)
+
+        response_data, status_code = dataProcess_player_stats.update_player_stats(id, game_id, update_fields)
+
+        # record, status_code1 = dataProcess_player_stats.fetch_game_record(id, game_id)
+        # print("after update: ",record, status_code1)
+
+        return jsonify(response_data), status_code
+    
+    else:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
+# player-stats 刪除
+@bp_web_api.route('/players/<int:id>/stats/<int:game_id>', methods=['DELETE'])
+def delete_player_stats(id, game_id):
+    session_id = request.cookies.get('session_id')
+
+    if session_id in sessions:
+
+        if id is None or game_id is None:
+            return jsonify({"message": "Your request is invalid."}), 400
+
+
+        response_data, status_code = dataProcess_player_stats.delete_player_stats(id, game_id)
+
+        # record, status_code1 = dataProcess_player_stats.fetch_game_record(id, game_id)
+        # print("hello")
+        # if not record:
+        #     print("not found!")
+
+        return response_data, status_code
+    
+    else:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
