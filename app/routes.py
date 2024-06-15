@@ -2,9 +2,9 @@ from flask import Blueprint, Flask, jsonify, render_template, request, Response,
 import sqlite3
 import uuid
 from swagger_ui import api_doc
-from app import dataProcess_player_profiles
+from app import dataProcess_player_profiles,dataProcess_games
 
-DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+DATABASE_PATH = f'data/nbaDB.db'
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
@@ -69,190 +69,95 @@ def delete_session():
 
     return jsonify({"message": "You are not authorized to access this resource."}), 401
 
-@bp_web_api.route('/games', methods=['POST'])
-def get_games():
-    "TODO: Stub for the function"
-    request_data = request.get_json()
-    page = request_data.get('page', {})
-    sort = request_data.get('sort', {})
+@bp_web_api.route('/game', methods=['POST'])
+def POST_games():
+    try:
+        data = request.get_json()
+        required_fields = ['date', 'away_name', 'home_name']
+        optional_fields = ["away_score", "home_score", "is_home_winner"]
 
-    offset = page.get('offset', 0)
-    length = page.get('length', 10)
-    
-    sort_field = sort.get('field', 'date')
-    sort_order = sort.get('order', 'ascending')
+        # 確認required資訊都有
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'message': 'Your request is invalid.'}), 400
 
-    conn = sqlite3.connect(DATABASE_PATH)
-    cursor = conn.cursor()
-    
-    sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
-    # query = '''
-    #     SELECT 
-    #         ATTEND.GID, Game.Date, Team.TName, Attend.Score, Attend.is_win_team 
-    #     FROM 
-    #         ATTEND 
-    #     JOIN 
-    #         Team ON Attend.TID = Team.TID
-    #     JOIN 
-    #         Game ON Game.GID = Attend.GID 
-    #     where
-    #         Attend.GID='0024600008' 
-    #     ORDER BY 
-    #         ? ?
-    #     LIMIT ? OFFSET ?
-    # '''
-    query = '''
-        SELECT 
-            ATTEND.GID, Game.Date, ATTEND.TID, Team.TName, Attend.Score, Attend.is_win_team
-        FROM 
-            ATTEND 
-        JOIN 
-            Game ON Game.GID = Attend.GID 
-        LEFT OUTER JOIN 
-            Team ON Attend.TID = Team.TID
-        where
-            Attend.GID='0024600008' 
-        ORDER BY 
-            ? ?
-        LIMIT ? OFFSET ?
-    '''
-    cursor.execute(query, (sort_field, sort_order_sql, length, offset))
-    rows = cursor.fetchall()
-    conn.close()
-    print(rows)
-    
-    # games = {}
-    # for row in rows:
-    #     game_id = row[0]
-    #     if game_id not in games:
-    #         games[game_id] = {
-    #             'id': game_id,# Game GID
-    #             'date': row[1],# Game Date
-    #             'home_name': '',# attend ishometeam(得知GID) -> ishometeam=1 team TName
-    #             'away_name': '',# attend ishometeam(得知GID) -> ishometeam=0 team TName
-    #             'home_score': 0,# attend score 
-    #             'away_score': 0,# attend score 
-    #             'winner_name': '' # attend is_win_team
-    #         }
-    #     team_name = row[2]
-    #     score = row[3]
-    #     is_win_team = row[4]
+        # 確認主隊與客隊存在於Team中
+        home_team_name = data['home_name']
+        away_team_name = data['away_name']
+        home_team_id, home_team_city = dataProcess_games.get_team_id_and_city(home_team_name)
+        away_team_id, _ = dataProcess_games.get_team_id_and_city(away_team_name)
+        if home_team_id is None or away_team_id is None:
+            return jsonify({'message': 'One or both teams do not exist.'}), 400
         
-    #     if games[game_id]['home_name'] == '':
-    #         games[game_id]['home_name'] = team_name
-    #         games[game_id]['home_score'] = score
-    #         if is_win_team == 'W':
-    #             games[game_id]['winner_name'] = team_name
-    #         # else:
-    #         #     games[game_id]['winner_name'] = 
-    #     else:
-    #         games[game_id]['away_name'] = team_name
-    #         games[game_id]['away_score'] = score
-    #         if is_win_team:
-    #             games[game_id]['winner_name'] = team_name
+        fields = required_fields.copy()
+        values = [data[field] for field in required_fields]  
+        for field in optional_fields:
+            if field in data:
+                fields.append(field)
+                values.append(data[field])  
+        
+        data = list(zip(fields, values))
+        
+        response, status_code = dataProcess_games.create_games_status(data,home_team_city,home_team_id,away_team_id)
 
-    # data = list(games.values())
+        return jsonify(response),status_code
+
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
     
-    # response = {
-    #     'page': {
-    #         'offset': offset,
-    #         'length': length
-    #     },
-    #     'values': data
-    # }
-    response = {
-        "page": {
-            "length": 10,
-            "offset": 0
-            },
-        "values": [
-            {
-            "away_name": "Nets",
-            "away_score": 98,
-            "date": "2024-05-06",
-            "home_name": "Celtics",
-            "home_score": 123,
-            "id": 3001,
-            "winner_name": "Celtics"
-            }
-        ]
-    }
+@bp_web_api.route('/games', methods=['GET'])
+def GET_games():
+    try:
+        page_offset = int(request.args.get('page_offset', 0))
+        page_length = int(request.args.get('page_length', 3))
+        sort_field = request.args.get('sort_field', 'name')
+        sort_order = request.args.get('sort_order', 'ascending')
+        response, status_code = dataProcess_games.fetch_games_details(page_offset,page_length,sort_field,sort_order)
+        return jsonify(response),status_code
 
-    return jsonify(response)
-
-@bp_web_api.route('/games', methods=['PUT'])
-def put_games():
-    "TODO: Stub for the function"
-    request_data = request.get_json()
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
     
-    # if not request_data:
-    #     return make_response(jsonify({'message': 'Your request is invalid.'}), 400)
-    
-    # conn = sqlite3.connect(DATABASE_PATH)
-    # cursor = conn.cursor()
-    
-    # for game in request_data:
-    #     if 'id' in game:
-    #         cursor.execute("""
-    #             UPDATE Game SET 
-    #                 date = ?, 
-    #                 home_name = ?, 
-    #                 away_name = ?, 
-    #                 home_score = ?, 
-    #                 away_score = ?, 
-    #                 winner_name = ? 
-    #             WHERE id = ?
-    #         """, (
-    #             game['date'],
-    #             game['home_name'],
-    #             game['away_name'],
-    #             game['home_score'],
-    #             game['away_score'],
-    #             game['winner_name'],
-    #             game['id']
-    #         ))
-            
-    #         if cursor.rowcount == 0:  # 沒有更新的行數
-    #             conn.rollback()
-    #             conn.close()
-    #             return make_response(jsonify({'message': 'Your request is invalid.'}), 400)
-    #     else:
-    #         cursor.execute("""
-    #             INSERT INTO Game (date, home_name, away_name, home_score, away_score, winner_name) 
-    #             VALUES (?, ?, ?, ?, ?, ?)
-    #         """, (
-    #             game['date'],
-    #             game['home_name'],
-    #             game['away_name'],
-    #             game['home_score'],
-    #             game['away_score'],
-    #             game.get('winner_name')
-    #         ))
+@bp_web_api.route('/games/{id}/teams/{team_id}', methods=['PATCH'])
+def PATCH_games():
+    try:
+        page_offset = int(request.args.get('page_offset', 0))
+        page_length = int(request.args.get('page_length', 3))
+        sort_field = request.args.get('sort_field', 'name')
+        sort_order = request.args.get('sort_order', 'ascending')
+        response, status_code = dataProcess_games.fetch_games_details(page_offset,page_length,sort_field,sort_order)
+        return jsonify(response),status_code
 
-    # conn.commit()
-    # conn.close()
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
-    return make_response(jsonify({'message': 'Created'}), 201 if any('id' not in game for game in request_data) else 204)
+@bp_web_api.route('/team', methods=['POST'])
+def POST_teams():
+    try:
+        data = request.get_json()
+        required_fields = ['abbr', 'city', 'name','year_founded']
+        optional_fields = ['coach']
 
-@bp_web_api.route('/teams', methods=['POST'])
-def GET_teams():
-    "TODO: Stub for the function"
-    return {
-        "page": {
-            "length": 10,
-            "offset": 0
-        },
-        "values": [
-            {
-            "abbr": "BOS",
-            "city": "Boston",
-            "coach": "Joseph Mazzulla",
-            "id": 60020,
-            "name": "Celtics",
-            "year_founded": 1946
-            }
-        ]
-    }
+        # 確認required資訊都有
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'message': 'Your request is invalid.'}), 400
+        
+        fields = required_fields.copy()
+        values = [data[field] for field in required_fields]  
+        for field in optional_fields:
+            if field in data:
+                fields.append(field)
+                values.append(data[field])  
+        
+        data = list(zip(fields, values))
+        
+        response, status_code = dataProcess_games.create_teams_status(data)
+
+        return jsonify(response),status_code
+
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500    
 
 # Player Profiles API
 @bp_web_api.route('/player-profiles', methods=['POST'])
