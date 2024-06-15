@@ -255,56 +255,93 @@ def GET_teams():
     }
 
 # Player Profiles API
-@bp_web_api.route('/player-profiles', methods=['POST'])
-def get_player_profiles():
-  if not request.is_json:
-    return jsonify({"message": "Your request is invalid."}), 400
-
-  req_data = request.get_json()
-
+@bp_web_api.route('/player/profile', methods=['POST'])
+def post_player_profiles():
   try:
-    page = req_data['birthdate']
-    sort = req_data['country']
-    length = page['height']
-    offset = page['name']
-    sort_field = sort['position']
-    sort_order = sort['team_name']
-    weight = page['weight']
-  except KeyError:
-    return jsonify({"message": "Your request is invalid."}), 400
-  print(length, offset, sort_field, sort_order, weight, page, sort)
-  breakpoint()
-  # TODO: Stub for the response
-  if length == 0 and offset == 8888:
-    return jsonify([]), 200
-
-  response_data, status_code = dataProcess_player_profiles.fetch_player_profiles(length, offset, sort_field, sort_order)
-  return jsonify(response_data), status_code
-
-@bp_web_api.route('/player-profiles', methods=['PUT'])
-def update_or_create_player_profile():
-    "TODO: Stub for the function"
-    response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
-    return jsonify(response_data), status_code
     cookies = request.cookies
     session_id = cookies.get('session_id')
-    
-    print("Cookies received:", cookies)
-    print("Session ID:", session_id)
-    if not request.is_json:
-      return jsonify({"message": "Your request is invalid."}), 400
-    
-    req_data = request.get_json()
-    print(req_data[0])
-    return "ok"
+    if session_id is None:
+      return jsonify({"message": "You are not authorized to access this resource."}), 401
 
-@bp_web_api.route('/player-profiles/<int:id>', methods=['DELETE'])
+    data = request.get_json()
+      
+    # 檢查必要參數
+    if 'name' not in data:
+        return jsonify({"message": "Your request is invalid."}), 400
+
+    # 取得參數
+    player_profile = {
+        'name': data.get('name'),
+        'birthdate': data.get('birthdate'),
+        'country': data.get('country'),
+        'height': data.get('height'),
+        'position': data.get('position'),
+        'team_name': data.get('team_name'),
+        'weight': data.get('weight')
+    }
+    response_data, status_code = dataProcess_player_profiles.post_player_profiles(player_profile)
+  except Exception:
+    return jsonify({"message": "Sorry, an unexpected error has occurred."}), 500
+  return jsonify(response_data), status_code
+
+@bp_web_api.route('/players/profile', methods=['GET'])
+def get_player_profile():
+    try:
+      page_offset = request.args.get('page_offset', type=int)
+      page_length = request.args.get('page_length', type=int)
+      sort_field = request.args.get('sort_field', type=str)
+      sort_order = request.args.get('sort_order', type=str)
+      print(page_offset, page_length, sort_field, sort_order)
+      if None in [page_offset, page_length, sort_field, sort_order] or sort_order not in ['ascending', 'descending']:
+          return jsonify({"message": "Your request is invalid."}), 400
+      response_data, status_code = dataProcess_player_profiles.get_player_profiles(page_length, page_offset, sort_field, sort_order)
+    except Exception:
+      return jsonify({"message": "Sorry, an unexpected error has occurred."}), 500
+    return response_data, status_code
+
+@bp_web_api.route('/players/<int:id>/profile', methods=['DELETE'])
 def delete_player_profile(id):
-    "TODO: Stub for the function"
+    try:
+      cookies = request.cookies
+      session_id = cookies.get('session_id')
+      if session_id is None:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+      response_data, status_code = dataProcess_player_profiles.delete_player_profiles(id)
+    except Exception:
+      return jsonify({"message": "Sorry, an unexpected error has occurred."}), 500
+    return response_data, status_code
+
     # response_data, status_code = dataProcess_player_profiles.player_profiles_put_stub()
     # return jsonify(response_data), status_code
     response_data, status_code = dataProcess_player_profiles.player_profiles_delete_stub(id)
     return jsonify(response_data), status_code
+
+@bp_web_api.route('/players/<int:id>/profile', methods=['PATCH'])
+def patch_player_profile(id):
+    try:
+      cookies = request.cookies
+      session_id = cookies.get('session_id')
+      if session_id is None:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+      data = request.get_json()
+      if not data:
+        return jsonify({"message": "Your request is invalid."}), 400
+      player_profile = {
+          'name': data.get('name'),
+          'birthdate': data.get('birthdate'),
+          'country': data.get('country'),
+          'height': data.get('height'),
+          'position': data.get('position'),
+          'team_name': data.get('team_name'),
+          'weight': data.get('weight')
+      }
+      response_data, status_code = dataProcess_player_profiles.patch_player_profiles(id,player_profile)
+    except Exception:
+      return jsonify({"message": "Sorry, an unexpected error has occurred."}), 500
+    return response_data, status_code
+
+
+
 
 # Render the HTML file at ../web/dist/index.html
 @bp_web_page.route('/')
