@@ -119,6 +119,7 @@ def create_teams_status(data):
         return jsonify({'message': 'Internal server error', 'error': str(e)}), 500
             
 
+
 def get_team_id_and_city(team_name):
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
@@ -178,3 +179,19 @@ def fetch_games_details(page_offset, page_length, sort_field, sort_order):
         print(f"SQLite error: {e}")
         return {'error': str(e)}, 500
     
+def update_games_status(id,team_id,data):
+    try:
+        
+        is_winner = data["is_winner"]
+        score = data["score"]
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute("UPDATE Attend SET is_win_team = ?, Score = ? WHERE GID =? AND TID =?", (is_winner,score,id,team_id))
+        conn.commit()
+        conn.close()
+        return {'message': 'Game status updated'}, 201
+    
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+        return {'error': str(e)}, 500

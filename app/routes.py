@@ -118,14 +118,11 @@ def GET_games():
     except Exception as e:
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
     
-@bp_web_api.route('/games/{id}/teams/{team_id}', methods=['PATCH'])
-def PATCH_games():
+@bp_web_api.route('/games/<int:id>/teams/<int:team_id>', methods=['PATCH'])
+def PATCH_games(id, team_id):
     try:
-        page_offset = int(request.args.get('page_offset', 0))
-        page_length = int(request.args.get('page_length', 3))
-        sort_field = request.args.get('sort_field', 'name')
-        sort_order = request.args.get('sort_order', 'ascending')
-        response, status_code = dataProcess_games.fetch_games_details(page_offset,page_length,sort_field,sort_order)
+        data = request.json
+        response, status_code = dataProcess_games.update_games_status(id,team_id,data)
         return jsonify(response),status_code
 
     except Exception as e:
