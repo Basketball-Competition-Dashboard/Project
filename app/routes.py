@@ -263,16 +263,17 @@ def get_player_profiles():
   req_data = request.get_json()
 
   try:
-    page = req_data['page']
-    sort = req_data['sort']
-    length = page['length']
-    offset = page['offset']
-    sort_field = sort['field']
-    sort_order = sort['order']
+    page = req_data['birthdate']
+    sort = req_data['country']
+    length = page['height']
+    offset = page['name']
+    sort_field = sort['position']
+    sort_order = sort['team_name']
+    weight = page['weight']
   except KeyError:
     return jsonify({"message": "Your request is invalid."}), 400
-
-  print(length, offset, sort_field, sort_order)
+  print(length, offset, sort_field, sort_order, weight, page, sort)
+  breakpoint()
   # TODO: Stub for the response
   if length == 0 and offset == 8888:
     return jsonify([]), 200
