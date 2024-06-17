@@ -167,7 +167,7 @@ def POST_teams():
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
 @bp_web_api.route('/teams', methods=['GET'])
-def GET_teams_stub():
+def GET_teams():
     page_offset = request.args.get('page_offset', type=int)
     page_length = request.args.get('page_length', type=int)
     sort_field = request.args.get('sort_field')
