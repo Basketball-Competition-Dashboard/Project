@@ -238,7 +238,7 @@ def create_player_stats():
             game_away_abbr = req_data['game_away_abbr']
             game_home_abbr = req_data['game_home_abbr']
         except KeyError:
-            return jsonify({"message": "Your here request is invalid."}), 400
+            return jsonify({"message": "Your request is invalid."}), 400
         
         assist = req_data.get('assist', None)
         hit = req_data.get('hit', None)
@@ -290,7 +290,7 @@ def update_player_stats(id, game_id):
         # print(update_fields)
 
         if not update_fields:
-            return jsonify({"message": "No valid fields to update."}), 400
+            return jsonify({"message": "Your request is invalid."}), 400
 
         # record, status_code1 = dataProcess_player_stats.fetch_game_record(id, game_id)
         # print("before update: ",record, status_code1)
