@@ -167,8 +167,23 @@ def POST_teams():
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
 
 @bp_web_api.route('/teams', methods=['GET'])
-def GET_teams_stub():
-    return jsonify([]), 200
+def GET_teams():
+    page_offset = request.args.get('page_offset', type=int)
+    page_length = request.args.get('page_length', type=int)
+    sort_field = request.args.get('sort_field')
+    sort_order = request.args.get('sort_order')
+
+    if page_offset is None or page_length is None or not sort_field or not sort_order:
+        return jsonify({"message": "Your request is invalid."}), 400
+
+    if page_length == 0:
+        return jsonify([]), 200
+    
+    print(page_offset, page_length, sort_field, sort_order)
+ 
+    response_data, status_code = dataProcess_teams.get_team(page_length, page_offset, sort_field, sort_order)
+    # return jsonify(response_data), status_code
+    return jsonify(response_data), status_code
 
 @bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
 def PATCH_teams(id):
@@ -238,7 +253,7 @@ def create_player_stats():
             game_away_abbr = req_data['game_away_abbr']
             game_home_abbr = req_data['game_home_abbr']
         except KeyError:
-            return jsonify({"message": "Your here request is invalid."}), 400
+            return jsonify({"message": "Your request is invalid."}), 400
         
         assist = req_data.get('assist', None)
         hit = req_data.get('hit', None)
@@ -290,7 +305,7 @@ def update_player_stats(id, game_id):
         # print(update_fields)
 
         if not update_fields:
-            return jsonify({"message": "No valid fields to update."}), 400
+            return jsonify({"message": "Your request is invalid."}), 400
 
         # record, status_code1 = dataProcess_player_stats.fetch_game_record(id, game_id)
         # print("before update: ",record, status_code1)

@@ -65,3 +65,44 @@ def update_teams_status(id,data):
     except sqlite3.Error as e:
         print(f"SQLite error: {e}")
         return {'error': str(e)}, 500
+
+
+def get_team(page_length, page_offset, sort_field, sort_order):
+    
+    try:
+      conn = sqlite3.connect(DATABASE_PATH)
+      cursor = conn.cursor()
+        # 構建排序字段和順序
+    #   sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'
+      order_direction = 'ASC' if sort_order == 'ascending' else 'DESC'
+
+      # 構建SQL查詢語句
+      sql = f"""
+        SELECT 
+           NameAbbr as abbr, City as city, CoachName as coach, tid as id, NickName as name, YearFounded as year_founded
+           from Team
+           ORDER BY {sort_field} {order_direction}
+           LIMIT {page_length} OFFSET {page_offset}
+
+      """
+      cursor.execute(sql)
+      rows = cursor.fetchall()
+      conn.close()
+    #   print(rows[0][0])
+
+    #   print(rows)
+      values = [{
+            "abbr": row[0],
+            "city": row[1],
+            "coach": row[2],
+            "id": row[3],
+            "name": row[4],
+            "year_founded": row[5]
+        } for row in rows]
+      
+      response_data = values
+
+      return response_data, 200
+    
+    except Exception:
+        return {"message": "Sorry, an unexpected error has occurred."}, 500
