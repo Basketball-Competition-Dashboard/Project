@@ -173,6 +173,33 @@ def GET_teams():
     sort_field = request.args.get('sort_field')
     sort_order = request.args.get('sort_order')
 
+    if page_offset is None or page_length is None or not sort_field or not sort_order:
+        return jsonify({"message": "Your request is invalid."}), 400
+
+    if page_length == 0:
+        return jsonify([]), 200
+    
+    print(page_offset, page_length, sort_field, sort_order)
+ 
+    response_data, status_code = dataProcess_teams.get_team(page_length, page_offset, sort_field, sort_order)
+    # return jsonify(response_data), status_code
+    return jsonify(response_data), status_code
+
+@bp_web_api.route('/teams/<int:id>', methods=['PATCH'])
+def PATCH_teams(id):
+    session_id = request.cookies.get('session_id')
+    if session_id not in sessions:
+        return jsonify({"message": "You are not authorized to access this resource."}), 401
+
+    try:
+        data = request.json
+        response, status_code = dataProcess_teams.update_teams_status(id,data)
+        return jsonify(response),status_code
+
+    except Exception as e:
+        return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
+
+
 # Player Profiles API
 @bp_web_api.route('/player/profile', methods=['POST'])
 def post_player_profiles():
