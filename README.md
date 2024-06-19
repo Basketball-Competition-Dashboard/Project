@@ -39,7 +39,7 @@
         cd ../
         ```
 
-5. Run the server
+5. Run the server!
 
     ```shell
     python -m main
