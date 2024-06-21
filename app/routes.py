@@ -1,4 +1,5 @@
 from flask import Blueprint, Flask, jsonify, render_template, request, Response,make_response
+from flask_cors import CORS
 import sqlite3
 import uuid
 from swagger_ui import api_doc
@@ -436,5 +437,7 @@ def init_app(app: Flask):
         title='Web API Documentation',
         editor=True,
     )
+    # Enable CORS
+    CORS(app, resources={r"/api/web/*": {"origins": "http://localhost:5173"}})
 
     app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/_doc/api/web')
