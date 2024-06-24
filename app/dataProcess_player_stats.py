@@ -12,7 +12,7 @@ def get_player_stats(length, offset, sort_field, sort_order):
          'id', 'name', 'game_id', 'game_date', 'game_away_abbr', 'game_home_abbr',
          'assist', 'hit', 'steal', 'rebound', 'free_throw', 'score',
       }:
-          sort_field = 'name'
+         sort_field = 'name'
 
       # 構建SQL查詢語句
       sql = f"""
