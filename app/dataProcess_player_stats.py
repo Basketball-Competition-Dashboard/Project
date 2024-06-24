@@ -24,7 +24,7 @@ def get_player_stats(length, offset, sort_field, sort_order):
             gr.Steal,
             gr.Rebound as rebound,
             gr.FreeThrow as free_throw,
-            gr.Score
+            gr.Score as score
 
         FROM 
             Game AS g
