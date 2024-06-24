@@ -6,7 +6,7 @@ DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 def get_team_id(team_name):
     connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
-    cursor.execute("SELECT TID FROM Team WHERE TName = ?", (team_name,))
+    cursor.execute("SELECT TID FROM Team WHERE NickName = ?", (team_name,))
     result = cursor.fetchone()
     connection.close()
     if result:
@@ -93,7 +93,7 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
             ELSE SUBSTR(p.Position, 1, 1)
         END AS Position,
         p.Country,
-        t.TName AS team_name
+        t.NickName AS team_name
     FROM
         Player p
     JOIN
