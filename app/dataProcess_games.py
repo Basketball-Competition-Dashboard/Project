@@ -1,7 +1,8 @@
 from flask import jsonify
 import sqlite3
+from pathlib import Path
 
-DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+DATABASE_PATH = Path(f'{__file__}/../../data/nbaDB.db').resolve()
 
 def create_games_status(data,home_team_city,home_team_id,away_team_id):
     try:

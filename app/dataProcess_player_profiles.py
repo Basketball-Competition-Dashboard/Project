@@ -1,8 +1,10 @@
 import sqlite3
 import random
 import string
+from pathlib import Path
 
-DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+DATABASE_PATH = Path(f'{__file__}/../../data/nbaDB.db').resolve()
+
 def get_team_id(team_name):
     connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
