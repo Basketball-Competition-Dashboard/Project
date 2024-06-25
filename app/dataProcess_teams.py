@@ -75,6 +75,8 @@ def get_team(page_length, page_offset, sort_field, sort_order):
         # 構建排序字段和順序
     #   sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'
       order_direction = 'ASC' if sort_order == 'ascending' else 'DESC'
+      if sort_field not in {'abbr', 'city', 'coach', 'id', 'name', 'year_founded'}:
+          sort_field = 'name'
 
       # 構建SQL查詢語句
       sql = f"""
@@ -82,10 +84,10 @@ def get_team(page_length, page_offset, sort_field, sort_order):
            NameAbbr as abbr, City as city, CoachName as coach, tid as id, NickName as name, YearFounded as year_founded
            from Team
            ORDER BY {sort_field} {order_direction}
-           LIMIT {page_length} OFFSET {page_offset}
+           LIMIT ? OFFSET ?
 
       """
-      cursor.execute(sql)
+      cursor.execute(sql, (page_length, page_offset))
       rows = cursor.fetchall()
       conn.close()
     #   print(rows[0][0])

@@ -6,7 +6,7 @@ DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
 def get_team_id(team_name):
     connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
-    cursor.execute("SELECT TID FROM Team WHERE TName = ?", (team_name,))
+    cursor.execute("SELECT TID FROM Team WHERE NickName = ?", (team_name,))
     result = cursor.fetchone()
     connection.close()
     if result:
@@ -82,28 +82,28 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
     sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
     # 構建基本的SQL查詢語句
     base_query = """
-    SELECT  p.PID,
-        p.Fname,
-        p.Lname,
-        p.Bdate,
-        p.Height,
-        p.Weight,
+    SELECT
+        p.PID AS id,
+        p.Fname || ' ' || p.Lname AS name,
+        p.Bdate AS birthdate,
+        p.Height AS height,
+        p.Weight AS weight,
         CASE
             WHEN INSTR(p.Position, '-') > 0 THEN SUBSTR(p.Position, 1, 1) || SUBSTR(p.Position, INSTR(p.Position, '-') + 1, 1)
             ELSE SUBSTR(p.Position, 1, 1)
-        END AS Position,
-        p.Country,
-        t.TName AS team_name
+        END AS position,
+        p.Country AS country,
+        t.NickName AS team_name
     FROM
         Player p
     JOIN
         Team t ON p.TID = t.TID
     """
     # 添加排序條件
-    if sort_field in ['Player', 'Team', 'Position', 'Birthdate', 'Height', 'Weight', 'Country', 'Fname']:
+    if sort_field in {'name', 'birthdate', 'height', 'weight', 'position', 'country', 'team_name'}:
         base_query += f" ORDER BY {sort_field} {sort_order_sql.upper()}"
     else:
-        base_query += f" ORDER BY Fname {sort_order_sql.upper()}"
+        base_query += f" ORDER BY name {sort_order_sql.upper()}"
     
     # 添加分頁條件
     base_query += " LIMIT ? OFFSET ?"
@@ -120,13 +120,13 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
     for row in results:
         player_data = {
             'id': row[0],
-            'name': f"{row[1]} {row[2]}",
-            'birthdate': row[3][0:10],
-            'height': row[4],
-            'weight': row[5],
-            'position': row[6],
-            'country': row[7],
-            'team_name': row[8]
+            'name': row[1],
+            'birthdate': row[2][0:10],
+            'height': row[3],
+            'weight': row[4],
+            'position': row[5],
+            'country': row[6],
+            'team_name': row[7]
         }
         response_data.append(player_data)
     print(response_data)
