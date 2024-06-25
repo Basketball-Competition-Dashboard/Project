@@ -4,8 +4,9 @@ import sqlite3
 import uuid
 from swagger_ui import api_doc
 from app import dataProcess_player_profiles, dataProcess_player_stats, dataProcess_games, dataProcess_teams
+from pathlib import Path
 
-DATABASE_PATH = f'{__file__}/../../data/nbaDB.db'
+DATABASE_PATH = Path(f'{__file__}/../../data/nbaDB.db').resolve()
 
 # __name__ == app.routes
 # __name__取得當前模組的名稱，用於定位相對路徑
