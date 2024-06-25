@@ -87,6 +87,13 @@ def get_team_id_and_city(team_name):
 def fetch_games_details(page_offset, page_length, sort_field, sort_order):
     try:
         sort_order_sql = 'ASC' if sort_order == 'ascending' else 'DESC'
+        if sort_field not in {
+            'away_abbr', 'away_id', 'away_name', 'away_score',
+            'date', 'home_abbr', 'home_id', 'home_name',
+            'home_score', 'id', 'is_home_winner',
+        }:
+            sort_field = 'date'
+
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         

@@ -7,9 +7,13 @@ def get_player_stats(length, offset, sort_field, sort_order):
    try:
       conn = sqlite3.connect(DATABASE_PATH)
       cursor = conn.cursor()
-        # 構建排序字段和順序
-    #   sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'
+      # 構建排序字段和順序
       order_direction = 'ASC' if sort_order == 'ascending' else 'DESC'
+      if sort_field not in {
+         'id', 'name', 'game_id', 'game_date', 'game_away_abbr', 'game_home_abbr',
+         'assist', 'hit', 'steal', 'rebound', 'free_throw', 'score',
+      }:
+         sort_field = 'name'
 
       # 構建SQL查詢語句
       sql = f"""
@@ -22,10 +26,10 @@ def get_player_stats(length, offset, sort_field, sort_order):
             home_team.NameAbbr as game_home_abbr,
             gr.Assist as assist,
             gr.Hit as hit,
-            gr.Steal,
+            gr.Steal as steal,
             gr.Rebound as rebound,
             gr.FreeThrow as free_throw,
-            gr.Score
+            gr.Score as score
 
         FROM 
             Game AS g
@@ -43,10 +47,9 @@ def get_player_stats(length, offset, sort_field, sort_order):
             Team AS away_team ON away_attend.TID = away_team.TID
 
         ORDER BY {sort_field} {order_direction}
-        LIMIT {length} OFFSET {offset}
-
+        LIMIT ? OFFSET ?
       """
-      cursor.execute(sql)
+      cursor.execute(sql, (length, offset))
       rows = cursor.fetchall()
       conn.close()
     #   print(rows[0][0])
@@ -70,7 +73,8 @@ def get_player_stats(length, offset, sort_field, sort_order):
       response_data = values
 
       return response_data, 200
-   except Exception:
+   except Exception as e:
+        print(e)
         return {"message": "Sorry, an unexpected error has occurred."}, 500
 
 

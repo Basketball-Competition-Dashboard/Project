@@ -181,8 +181,6 @@ def GET_teams():
     if page_length == 0:
         return jsonify([]), 200
     
-    print(page_offset, page_length, sort_field, sort_order)
- 
     response_data, status_code = dataProcess_teams.get_team(page_length, page_offset, sort_field, sort_order)
     # return jsonify(response_data), status_code
     return jsonify(response_data), status_code
@@ -239,7 +237,6 @@ def get_player_profile():
       page_length = request.args.get('page_length', type=int)
       sort_field = request.args.get('sort_field', type=str)
       sort_order = request.args.get('sort_order', type=str)
-      print(page_offset, page_length, sort_field, sort_order)
       if None in [page_offset, page_length, sort_field, sort_order] or sort_order not in ['ascending', 'descending']:
           return jsonify({"message": "Your request is invalid."}), 400
       response_data, status_code = dataProcess_player_profiles.get_player_profiles(page_length, page_offset, sort_field, sort_order)
@@ -303,9 +300,7 @@ def get_player_stats():
 
     if page_length == 0:
         return jsonify([]), 200
-    
-    print(page_offset, page_length, sort_field, sort_order)
- 
+
     response_data, status_code = dataProcess_player_stats.get_player_stats(page_length, page_offset, sort_field, sort_order)
     # return jsonify(response_data), status_code
     return jsonify(response_data), status_code
