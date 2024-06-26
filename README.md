@@ -1,5 +1,9 @@
 # Project
 
+## Documentation
+
+Please refer to the [doc repository](https://github.com/Basketball-Competition-Dashboard/doc) for more information.
+
 ## Installation
 
 1. Clone the repository and sub-modules
@@ -15,7 +19,7 @@
     - [`pip`](https://pip.pypa.io/en/stable/installation/)
 
         ```shell
-        pip install -Ur requirements.txt
+        python3 -m pip install -Ur requirements.txt
         ```
 
 3. Install the database
@@ -30,7 +34,7 @@
 
 4. Build the client
 
-    - [`bun`](https://bun.sh)
+    - [`bun`](https://bun.sh) or [`npm`](https://www.npmjs.com/)
 
         ```shell
         cd web/
@@ -42,14 +46,18 @@
 5. Run the server!
 
     ```shell
-    python -m main
+    python3 -m main
     ```
+
+## Usage
+
+Authentication is required for some endpoints. One of the default username and password are `Demo Manager Zoe` and `A super safe password!`.
 
 ## Development
 
 1. Try to update all dependencies by following the [installation steps](#installation) if you have encountered any issue.
-2. The site URL is [http://127.0.0.1:5000](http://127.0.0.1:5000)
-3. The Web API documentation URL is [http://127.0.0.1:5000/_doc/api/web](http://127.0.0.1:5000/_doc/api/web)
+2. The site URL is [http://localhost:5000](http://localhost:5000)
+3. The Web API documentation URL is [http://localhost:5000/_doc/api/web](http://localhost:5000/_doc/api/web)
 4. The Web E2E tests are run by the following command:
 
     ```shell
