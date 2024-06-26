@@ -85,7 +85,7 @@ def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist,
         cursor = conn.cursor()
 
         # print(name)
-        lname, fname = name.split()
+        fname, lname = name.split()
         # print(lname, fname)
 
         cursor.execute("SELECT PID FROM Player WHERE Fname = ? AND Lname = ?", (fname, lname))
