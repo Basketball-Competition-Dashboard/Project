@@ -328,7 +328,7 @@ def create_player_stats():
         steal = req_data.get('steal', None)
         rebound = req_data.get('rebound', None)
         free_throw = req_data.get('free_throw', None)
-        score = req_data.get('score', None)
+        score = req_data.get('score', 0)
 
         #print(name,game_date,game_away_abbr,game_home_abbr,assist,hit,steal,rebound,free_throw,score)
         

@@ -22,7 +22,8 @@ def create_teams_status(data):
        
         sql = """
             SELECT 
-                t.Nickname AS team,
+                t.TID AS id,
+                t.Nickname AS name,
                 t.City AS city,
                 t.NameAbbr AS abbr,
                 t.CoachName AS coach,
