@@ -60,22 +60,42 @@ def post_player_profiles(player_profile):
     
     cursor.execute(query, values)
     connection.commit()
-    
-    cursor.execute("SELECT PID, Fname, Lname, Bdate, Height, Weight, Position, Country, TID FROM Player WHERE PID = ?", (pid,))
+
+    # 取得新插入的球員資料
+    query = """
+    SELECT
+        p.PID AS id,
+        p.Fname || ' ' || p.Lname AS name,
+        p.Bdate AS birthdate,
+        p.Height AS height,
+        p.Weight AS weight,
+        CASE
+            WHEN INSTR(p.Position, '-') > 0 THEN SUBSTR(p.Position, 1, 1) || SUBSTR(p.Position, INSTR(p.Position, '-') + 1, 1)
+            ELSE SUBSTR(p.Position, 1, 1)
+        END AS position,
+        p.Country AS country,
+        t.NickName AS team_name
+    FROM
+        Player p
+    JOIN
+        Team t ON p.TID = t.TID
+    WHERE
+        p.PID = ?
+    """
+    cursor.execute(query, (pid,))
     new_player = cursor.fetchone()
     connection.close()
 
     if new_player:
         response_data = {
-            'PID': new_player[0],
-            'Fname': new_player[1],
-            'Lname': new_player[2],
-            'Bdate': new_player[3],
-            'Height': new_player[4],
-            'Weight': new_player[5],
-            'Position': new_player[6],
-            'Country': new_player[7],
-            'TID': new_player[8]
+            "id": new_player[0],
+            "name": new_player[1],
+            "birthdate": new_player[2][0:10] if new_player[2] is not None else None,
+            "height": new_player[3],
+            "weight": new_player[4],
+            "position": new_player[5],
+            "country": new_player[6],
+            "team_name": new_player[7],
         }
     return response_data , 201
 
@@ -123,7 +143,7 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
         player_data = {
             'id': row[0],
             'name': row[1],
-            'birthdate': row[2][0:10],
+            'birthdate': row[2][0:10] if row[2] is not None else None,
             'height': row[3],
             'weight': row[4],
             'position': row[5],
