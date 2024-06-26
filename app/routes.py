@@ -436,4 +436,4 @@ def init_app(app: Flask):
     # Enable CORS
     CORS(app, resources={r"/api/web/*": {"origins": "http://localhost:5173"}})
 
-    app.logger.info(' * Web API Documentation URL: http://127.0.0.1:5000/_doc/api/web')
+    app.logger.info(' * Web API Documentation URL: http://localhost:5000/_doc/api/web')
