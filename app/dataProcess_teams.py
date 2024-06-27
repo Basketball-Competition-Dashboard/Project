@@ -16,6 +16,7 @@ def create_teams_status(data):
         CoachName = data.get('coach')
 
         conn = sqlite3.connect(DATABASE_PATH, isolation_level='IMMEDIATE')
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Team (Nickname, City, NameAbbr, CoachName, YearFounded) VALUES (?, ?, ?, ?, ?)",(Nickname, City, NameAbbr, CoachName, YearFounded))
         team_id = cursor.lastrowid
@@ -57,6 +58,7 @@ def update_teams_status(id,data):
     try:
         coach = data["coach"]
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
         cursor.execute("UPDATE Team SET CoachName = ? WHERE TID =? ", (coach,id))
@@ -73,6 +75,7 @@ def get_team(page_length, page_offset, sort_field, sort_order):
     
     try:
       conn = sqlite3.connect(DATABASE_PATH)
+      conn.execute("PRAGMA foreign_keys = ON")
       cursor = conn.cursor()
         # 構建排序字段和順序
     #   sort_column = 'FName || " " || LName' if sort_field == 'name' else 'BDate'

@@ -7,6 +7,7 @@ DATABASE_PATH = Path(f'{__file__}/../../data/nbaDB.db').resolve()
 
 def get_team_id(team_name):
     connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     cursor = connection.cursor()
     cursor.execute("SELECT TID FROM Team WHERE NickName = ?", (team_name,))
     result = cursor.fetchone()
@@ -56,6 +57,7 @@ def post_player_profiles(player_profile):
     print(query,"_______")
 
     connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     cursor = connection.cursor()
     
     cursor.execute(query, values)
@@ -133,6 +135,7 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
     # print(base_query)
 
     connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     cursor = connection.cursor()
     cursor.execute(base_query, (page_length, page_offset))
     results = cursor.fetchall()
@@ -156,6 +159,7 @@ def get_player_profiles(page_length, page_offset, sort_field, sort_order):
   
 def delete_player_profiles(player_id):
   connection = sqlite3.connect(DATABASE_PATH)
+  connection.execute("PRAGMA foreign_keys = ON")
   cursor = connection.cursor()
 
   # 查找球員的 PID
@@ -176,6 +180,7 @@ def delete_player_profiles(player_id):
 def patch_player_profiles(player_id, player_profile):
     
     connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("PRAGMA foreign_keys = ON")
     cursor = connection.cursor()
 
     # 查找球員的 PID

@@ -6,6 +6,7 @@ DATABASE_PATH = Path(f'{__file__}/../../data/nbaDB.db').resolve()
 def get_player_stats(length, offset, sort_field, sort_order):
    try:
       conn = sqlite3.connect(DATABASE_PATH)
+      conn.execute("PRAGMA foreign_keys = ON")
       cursor = conn.cursor()
       # 構建排序字段和順序
       order_direction = 'ASC' if sort_order == 'ascending' else 'DESC'
@@ -82,6 +83,7 @@ def get_player_stats(length, offset, sort_field, sort_order):
 def create_player_stats(name, game_date, game_home_abbr, game_away_abbr, assist, hit, steal, rebound, free_throw, score):
     try:
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
         # print(name)
@@ -157,6 +159,7 @@ def update_player_stats(id, gid, update_fields):
 
     try:
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
         # Check if the record exists
@@ -189,6 +192,7 @@ def delete_player_stats(id, game_id):
 
     try:
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
 
         
