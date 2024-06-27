@@ -11,6 +11,7 @@ def create_games_status(data,home_team_city,home_team_id,away_team_id):
         date = data.get('date')
         
         conn = sqlite3.connect(DATABASE_PATH, isolation_level='IMMEDIATE')
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Game (Date, SID, Place) VALUES (?, ?, ?)", (date, 12005, home_team_city))
         game_id = cursor.lastrowid
@@ -76,6 +77,7 @@ def create_games_status(data,home_team_city,home_team_id,away_team_id):
 
 def get_team_id_and_city(team_name):
     conn = sqlite3.connect(DATABASE_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
     cursor = conn.cursor()
     cursor.execute("SELECT TID, City FROM Team WHERE Nickname = ?", (team_name,))
     team_data = cursor.fetchone()
@@ -95,6 +97,7 @@ def fetch_games_details(page_offset, page_length, sort_field, sort_order):
             sort_field = 'date'
 
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         
         query = f"""
@@ -158,6 +161,7 @@ def update_games_status(id,team_id,data):
         is_winner = data["is_winner"]
         score = data["score"]
         conn = sqlite3.connect(DATABASE_PATH)
+        conn.execute("PRAGMA foreign_keys = ON")
         cursor = conn.cursor()
         
         cursor.execute("UPDATE Attend SET is_win_team = ?, Score = ? WHERE GID =? AND TID =?", (is_winner,score,id,team_id))

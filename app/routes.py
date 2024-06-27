@@ -42,6 +42,7 @@ def create_session():
         return jsonify({"message": "Your request is invalid."}), 400
 
     conn = sqlite3.connect(DATABASE_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
     cursor = conn.cursor()
     cursor.execute(
         'SELECT Account, Password FROM Manager where Account = ? and Password = ? limit 1;',
@@ -108,6 +109,7 @@ def POST_games():
         return jsonify(response), status_code
 
     except Exception as e:
+        print(e)
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
     
 @bp_web_api.route('/games', methods=['GET'])
@@ -121,6 +123,7 @@ def GET_games():
         return jsonify(response),status_code
 
     except Exception as e:
+        print(e)
         return jsonify({'message': 'Sorry, an unexpected error has occurred.'}), 500
     
 @bp_web_api.route('/games/<int:id>/teams/<int:team_id>', methods=['PATCH'])
@@ -240,7 +243,8 @@ def get_player_profile():
       if None in [page_offset, page_length, sort_field, sort_order] or sort_order not in ['ascending', 'descending']:
           return jsonify({"message": "Your request is invalid."}), 400
       response_data, status_code = dataProcess_player_profiles.get_player_profiles(page_length, page_offset, sort_field, sort_order)
-    except Exception:
+    except Exception as e:
+      print(e)
       return jsonify({"message": "Sorry, an unexpected error has occurred."}), 500
     return response_data, status_code
 
